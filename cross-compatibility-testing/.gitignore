@@ -1,6 +1,5 @@
 # Test Data
 test-data/
-*.json
 
 # Node.js
 node_modules/
