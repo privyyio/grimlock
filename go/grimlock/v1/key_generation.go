@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/privyy/grimlock/types"
+	"github.com/privyy-io/grimlock/go/grimlock/types"
 	"golang.org/x/crypto/curve25519"
 )
 

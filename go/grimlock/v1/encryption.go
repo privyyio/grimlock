@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/privyy/grimlock/types"
+	"github.com/privyy-io/grimlock/go/grimlock/types"
 )
 
 // EncryptPrivateKey encrypts a private key using AES-256-GCM

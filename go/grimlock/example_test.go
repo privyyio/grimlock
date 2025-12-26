@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/privyy/grimlock"
-	"github.com/privyy/grimlock/types"
-	v1 "github.com/privyy/grimlock/v1"
+	"github.com/privyy-io/grimlock/go/grimlock"
+	"github.com/privyy-io/grimlock/go/grimlock/types"
+	v1 "github.com/privyy-io/grimlock/go/grimlock/v1"
 )
 
 // Example of basic key generation and encryption

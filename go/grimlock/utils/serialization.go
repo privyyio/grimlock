@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/privyy/grimlock/types"
+	"github.com/privyy-io/grimlock/go/grimlock/types"
 )
 
 // SerializeKeyPair serializes a key pair to base64-encoded strings

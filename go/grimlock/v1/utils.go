@@ -1,6 +1,6 @@
 package v1
 
-import "github.com/privyy/grimlock/utils"
+import "github.com/privyy-io/grimlock/go/grimlock/utils"
 
 // SecureErase securely erases sensitive data from memory
 func SecureErase(data []byte) {
