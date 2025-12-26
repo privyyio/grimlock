@@ -1,0 +1,16 @@
+{
+  "name": "grimlock-ts-verifier",
+  "version": "1.0.0",
+  "description": "TypeScript test data verifier for Grimlock cross-compatibility tests",
+  "scripts": {
+    "verify": "tsx verifier.ts"
+  },
+  "dependencies": {
+    "@privyy/grimlock": "file:../../typescript/grimlock"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "grimlock-ts-generator",
+  "version": "1.0.0",
+  "description": "TypeScript test data generator for Grimlock cross-compatibility tests",
+  "scripts": {
+    "generate": "tsx generator.ts"
+  },
+  "dependencies": {
+    "@privyy/grimlock": "file:../../typescript/grimlock"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.0.0"
+  }
+}

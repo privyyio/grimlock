@@ -78,24 +78,61 @@ cd go-verifier
 go mod download 2>/dev/null || true
 cd ..
 
-# Install TypeScript dependencies
+# Install and build TypeScript grimlock first (needed by generator/verifier)
+echo "  • Installing TypeScript grimlock dependencies..."
+cd ../typescript/grimlock
+if [ ! -f "package.json" ]; then
+  echo "Error: package.json not found in typescript/grimlock"
+  exit 1
+fi
+npm install || {
+  echo "Error: Failed to install grimlock dependencies"
+  exit 1
+}
+echo "  • Building TypeScript grimlock..."
+npm run build || {
+  echo "Error: Failed to build grimlock"
+  exit 1
+}
+if [ ! -d "dist" ]; then
+  echo "Error: dist directory not found after build"
+  exit 1
+fi
+cd ../../cross-compatibility-testing
+
+# Install TypeScript dependencies (after grimlock is built)
 echo "  • Installing TypeScript dependencies for generator..."
 cd ts-generator
-npm install --silent 2>/dev/null || npm install 2>/dev/null
+if [ ! -f "package.json" ]; then
+  echo "Error: package.json not found in ts-generator"
+  exit 1
+fi
+# Verify grimlock package is built and accessible
+if [ ! -d "../../typescript/grimlock/dist" ]; then
+  echo "Error: grimlock dist directory not found. Build may have failed."
+  exit 1
+fi
+npm install || {
+  echo "Error: Failed to install generator dependencies"
+  echo "Attempting to show npm error details..."
+  npm install --loglevel=error
+  exit 1
+}
 cd ..
 
 echo "  • Installing TypeScript dependencies for verifier..."
 cd ts-verifier
-npm install --silent 2>/dev/null || npm install 2>/dev/null
+if [ ! -f "package.json" ]; then
+  echo "Error: package.json not found in ts-verifier"
+  exit 1
+fi
+npm install || {
+  echo "Error: Failed to install verifier dependencies"
+  echo "Attempting to show npm error details..."
+  npm install --loglevel=error
+  exit 1
+}
 cd ..
-
-# Install TypeScript grimlock dependencies
-echo "  • Installing TypeScript grimlock dependencies..."
-cd ../typescript/grimlock
-npm install --silent 2>/dev/null || npm install 2>/dev/null
-echo "  • Building TypeScript grimlock..."
-npm run build 2>/dev/null || npm run build
-cd ../../cross-compatibility-testing
 
 echo -e "${GREEN}✓ All dependencies installed${NC}"
 
