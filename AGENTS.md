@@ -5,7 +5,7 @@ This document provides guidelines for AI assistants (like Claude, GPT-4, etc.) w
 ## 🎯 Project Overview
 
 **Grimlock** is a cryptographic library with **dual implementations**:
-- **Go**: `go-lang/grimlock/`
+- **Go**: `go/grimlock/`
 - **TypeScript**: `typescript/grimlock/`
 
 **Critical Requirement**: Both implementations MUST remain **100% compatible** at all times.
@@ -32,7 +32,7 @@ Current: v1 (production)
 Future: v2, v3, etc.
 
 Each version is self-contained in:
-- go-lang/grimlock/v1/
+- go/grimlock/v1/
 - typescript/grimlock/versions/v1/
 ```
 
@@ -181,7 +181,7 @@ export async function newOperation(
 ): Promise<Result>
 ```
 
-2. **Implement in Go** (`go-lang/grimlock/v1/new_operation.go`):
+2. **Implement in Go** (`go/grimlock/v1/new_operation.go`):
 ```go
 package v1
 
@@ -219,11 +219,11 @@ export async function newOperation(
 ```
 
 4. **Add to main API**:
-   - `go-lang/grimlock/grimlock.go`
+   - `go/grimlock/grimlock.go`
    - `typescript/grimlock/index.ts`
 
 5. **Add tests**:
-   - `go-lang/grimlock/example_test.go`
+   - `go/grimlock/example_test.go`
    - `typescript/grimlock/test.ts`
 
 6. **Add cross-compatibility test**:
@@ -235,7 +235,7 @@ export async function newOperation(
 7. **Run all tests**:
 ```bash
 # Go tests
-cd go-lang/grimlock && go test -v
+cd go/grimlock && go test -v
 
 # TypeScript tests
 cd typescript/grimlock && npm test
@@ -376,7 +376,7 @@ If tests fail, check:
 1. **Algorithm Parameters** - Are they identical?
 ```bash
 # Compare constants
-diff <(grep -A5 "HKDFSalt" go-lang/grimlock/v1/constants.go) \
+diff <(grep -A5 "HKDFSalt" go/grimlock/v1/constants.go) \
      <(grep -A5 "hkdfSalt" typescript/grimlock/versions/v1/constants.ts)
 ```
 
@@ -571,11 +571,11 @@ When uncertain about implementation details, refer to:
 
 ```bash
 # 1. Make changes to BOTH implementations
-vim go-lang/grimlock/v1/feature.go
+vim go/grimlock/v1/feature.go
 vim typescript/grimlock/versions/v1/feature.ts
 
 # 2. Run unit tests
-cd go-lang/grimlock && go test -v
+cd go/grimlock && go test -v
 cd typescript/grimlock && npm test
 
 # 3. Run cross-compatibility tests

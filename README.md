@@ -36,13 +36,13 @@ Grimlock uses a versioned architecture to support protocol evolution:
 
 ```
 grimlock/
-├── go-lang/grimlock/          # Go implementation
-│   ├── v1/                    # Version 1 implementation
-│   ├── types/                 # Type definitions
-│   ├── utils/                 # Utilities
-│   └── grimlock.go           # Main API
+├── go/grimlock/              # Go implementation
+│   ├── v1/                   # Version 1 implementation
+│   ├── types/                # Type definitions
+│   ├── utils/                # Utilities
+│   └── grimlock.go          # Main API
 │
-├── typescript/grimlock/       # TypeScript implementation
+├── typescript/grimlock/      # TypeScript implementation
 │   ├── versions/v1/          # Version 1 implementation
 │   ├── types/                # Type definitions
 │   ├── utils/                # Utilities
@@ -59,7 +59,7 @@ grimlock/
 
 ### Go Implementation
 
-**Location**: `go-lang/grimlock/`
+**Location**: `go/grimlock/`
 
 ```go
 import "github.com/privyy/grimlock"
@@ -78,7 +78,7 @@ encrypted, err := grimlock.EncryptMessage(payload, recipientPublicKey, context)
 payload, err := grimlock.DecryptMessage(encrypted, privateKey, context, nil)
 ```
 
-**See**: [Go README](go-lang/grimlock/README.md)
+**See**: [Go README](go/grimlock/README.md)
 
 ### TypeScript Implementation
 
@@ -120,7 +120,7 @@ const payload = await grimlock.decryptMessage(encrypted, privateKey, context);
 #### Go
 
 ```bash
-cd go-lang/grimlock
+cd go/grimlock
 go get github.com/privyy/grimlock
 ```
 
@@ -136,7 +136,7 @@ npm install
 #### Go Tests
 
 ```bash
-cd go-lang/grimlock
+cd go/grimlock
 go test -v
 ```
 
@@ -330,7 +330,7 @@ utils.SecureErase(privateKey)
 
 ```
 grimlock/
-├── go-lang/
+├── go/
 │   └── grimlock/
 │       ├── v1/              # V1 implementation
 │       │   ├── constants.go
@@ -396,7 +396,7 @@ jobs:
           node-version: '18'
       
       - name: Run Go tests
-        run: cd go-lang/grimlock && go test -v
+        run: cd go/grimlock && go test -v
       
       - name: Run TypeScript tests
         run: cd typescript/grimlock && npm install && npm test
