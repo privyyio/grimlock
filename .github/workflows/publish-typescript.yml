@@ -62,10 +62,21 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Setting version to: $VERSION"
 
-      - name: Update package.json version
+      - name: Update package.json version and repository
         working-directory: ./typescript/grimlock
         run: |
           npm version "${{ steps.package_version.outputs.version }}" --no-git-tag-version
+          # Ensure repository URL matches exactly
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.repository = {
+              type: 'git',
+              url: 'https://github.com/${{ github.repository }}.git',
+              directory: 'typescript/grimlock'
+            };
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
 
       - name: Install dependencies
         working-directory: ./typescript/grimlock
@@ -85,4 +96,8 @@ jobs:
         working-directory: ./typescript/grimlock
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm publish --access public
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Package name: @privyy/grimlock"
+          echo "Publishing to GitHub Packages..."
+          npm publish --access public
