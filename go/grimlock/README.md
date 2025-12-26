@@ -45,7 +45,7 @@ grimlock/
 ## Installation
 
 ```bash
-go get github.com/privyy/grimlock
+go get github.com/privyy-io/grimlock/go/grimlock
 ```
 
 Required dependencies (already in go.mod):
@@ -60,8 +60,8 @@ package main
 
 import (
     "fmt"
-    "github.com/privyy/grimlock"
-    "github.com/privyy/grimlock/types"
+    "github.com/privyy-io/grimlock/go/grimlock"
+    "github.com/privyy-io/grimlock/go/grimlock/types"
 )
 
 func main() {
@@ -102,8 +102,8 @@ func main() {
 
 ```go
 import (
-    "github.com/privyy/grimlock/v1"
-    "github.com/privyy/grimlock/types"
+    "github.com/privyy-io/grimlock/go/grimlock/v1"
+    "github.com/privyy-io/grimlock/go/grimlock/types"
 )
 
 func main() {
@@ -122,7 +122,7 @@ func main() {
 ### Version Manager
 
 ```go
-import "github.com/privyy/grimlock"
+import "github.com/privyy-io/grimlock/go/grimlock"
 
 func main() {
     manager := grimlock.GetVersionManager()
@@ -149,8 +149,8 @@ This is the key server-side operation for encrypting messages before storage:
 
 ```go
 import (
-    "github.com/privyy/grimlock"
-    "github.com/privyy/grimlock/types"
+    "github.com/privyy-io/grimlock/go/grimlock"
+    "github.com/privyy-io/grimlock/go/grimlock/types"
 )
 
 func encryptMessageForStorage(
@@ -191,7 +191,7 @@ func encryptMessageForStorage(
 ### Version Detection
 
 ```go
-import "github.com/privyy/grimlock"
+import "github.com/privyy-io/grimlock/go/grimlock"
 
 func decryptWithAutoVersion(encryptedData interface{}, privateKey []byte) error {
     // Auto-detect version
