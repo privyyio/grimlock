@@ -27,12 +27,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "18"
           registry-url: "https://npm.pkg.github.com"
           scope: "@privyy"
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3
 
       - name: Extract version from tag (if tag push)
         if: startsWith(github.ref, 'refs/tags/typescript/')
@@ -72,7 +77,9 @@ jobs:
 
       - name: Run tests
         working-directory: ./typescript/grimlock
-        run: npm test
+        run: |
+          echo "Running tests..."
+          npm test
 
       - name: Publish to GitHub Packages
         working-directory: ./typescript/grimlock
