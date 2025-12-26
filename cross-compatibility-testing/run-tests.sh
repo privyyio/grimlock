@@ -93,6 +93,8 @@ cd ..
 echo "  • Installing TypeScript grimlock dependencies..."
 cd ../typescript/grimlock
 npm install --silent 2>/dev/null || npm install 2>/dev/null
+echo "  • Building TypeScript grimlock..."
+npm run build 2>/dev/null || npm run build
 cd ../../cross-compatibility-testing
 
 echo -e "${GREEN}✓ All dependencies installed${NC}"
