@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: "18"
           registry-url: "https://npm.pkg.github.com"
-          scope: "@privyy"
+          scope: "@privyy-io"
 
       - name: Install build dependencies
         run: |
@@ -98,6 +98,6 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Repository: ${{ github.repository }}"
-          echo "Package name: @privyy/grimlock"
+          echo "Package name: @privyy-io/grimlock"
           echo "Publishing to GitHub Packages..."
           npm publish --access public

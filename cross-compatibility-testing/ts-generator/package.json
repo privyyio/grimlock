@@ -6,7 +6,7 @@
     "generate": "tsx generator.ts"
   },
   "dependencies": {
-    "@privyy/grimlock": "file:../../typescript/grimlock"
+    "@privyy-io/grimlock": "file:../../typescript/grimlock"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

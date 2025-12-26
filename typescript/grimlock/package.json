@@ -1,5 +1,5 @@
 {
-  "name": "@privyy/grimlock",
+  "name": "@privyy-io/grimlock",
   "version": "1.0.0",
   "description": "Versioned cryptographic operations module for privyy.io.",
   "main": "dist/index.js",
@@ -26,7 +26,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/privyy/grimlock.git",
+    "url": "https://github.com/privyy-io/grimlock.git",
     "directory": "typescript/grimlock"
   },
   "publishConfig": {
