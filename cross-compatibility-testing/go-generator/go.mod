@@ -2,7 +2,7 @@ module github.com/privyy/grimlock/cross-compatibility-testing/go-generator
 
 go 1.24.0
 
-replace github.com/privyy/grimlock => ../../go-lang/grimlock
+replace github.com/privyy/grimlock => ../../go/grimlock
 
 require github.com/privyy/grimlock v0.0.0-00010101000000-000000000000
 
