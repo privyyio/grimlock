@@ -1,0 +1,41 @@
+name: Cross-Compatibility Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - "go/**"
+      - "typescript/**"
+      - "cross-compatibility-testing/**"
+      - ".github/workflows/cross-compatibility-tests.yml"
+
+jobs:
+  cross-compatibility:
+    name: Cross-Compatibility Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Make test script executable
+        run: chmod +x cross-compatibility-testing/run-tests.sh
+
+      - name: Run cross-compatibility tests
+        working-directory: cross-compatibility-testing
+        run: ./run-tests.sh

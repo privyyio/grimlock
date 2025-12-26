@@ -1,0 +1,81 @@
+name: Publish TypeScript Package to GitHub Packages
+
+on:
+  push:
+    tags:
+      - "typescript/v*"
+    branches:
+      - main
+    paths:
+      - "typescript/grimlock/**"
+      - ".github/workflows/publish-typescript.yml"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g., 1.0.0)"
+        required: false
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@privyy"
+
+      - name: Extract version from tag (if tag push)
+        if: startsWith(github.ref, 'refs/tags/typescript/')
+        id: tag_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/typescript/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set package version
+        id: package_version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [ -n "${{ steps.tag_version.outputs.version }}" ]; then
+            VERSION="${{ steps.tag_version.outputs.version }}"
+          else
+            # Extract version from package.json and bump patch version
+            VERSION=$(node -p "require('./typescript/grimlock/package.json').version")
+            # For main branch pushes, append -dev.<timestamp>
+            VERSION="${VERSION}-dev.$(date +%s)"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Setting version to: $VERSION"
+
+      - name: Update package.json version
+        working-directory: ./typescript/grimlock
+        run: |
+          npm version "${{ steps.package_version.outputs.version }}" --no-git-tag-version
+
+      - name: Install dependencies
+        working-directory: ./typescript/grimlock
+        run: npm ci
+
+      - name: Build TypeScript
+        working-directory: ./typescript/grimlock
+        run: npm run build
+
+      - name: Run tests
+        working-directory: ./typescript/grimlock
+        run: npm test
+
+      - name: Publish to GitHub Packages
+        working-directory: ./typescript/grimlock
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish --access public

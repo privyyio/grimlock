@@ -149,6 +149,18 @@ privateKey.fill(0);
 sharedSecret.fill(0);
 ```
 
+### Rule 7: Documentation Files
+
+**NEVER** create README files, markdown documentation files, or similar documentation unless explicitly requested by the user.
+
+✅ **Correct Approach:**
+- Only create documentation files when the user explicitly asks for them
+- Focus on code implementation and inline comments instead
+
+❌ **Incorrect Approach:**
+- Creating README.md, GUIDE.md, or similar files proactively
+- Creating documentation "for completeness" without being asked
+
 ## 🔧 Implementation Patterns
 
 ### Pattern 1: Adding a New Cryptographic Operation

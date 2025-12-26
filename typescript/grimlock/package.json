@@ -1,15 +1,38 @@
 {
-  "name": "grimlock",
+  "name": "@privyy/grimlock",
   "version": "1.0.0",
   "description": "Versioned cryptographic operations module for privyy.io.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
   "scripts": {
+    "build": "tsc",
     "test": "ts-node test.ts",
-    "test:node": "node --loader ts-node/esm test.ts"
+    "test:node": "node --loader ts-node/esm test.ts",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "cryptography",
+    "encryption",
+    "ecdh",
+    "aes-gcm",
+    "key-derivation",
+    "privacy"
+  ],
+  "author": "Privyy",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/privyy/grimlock.git",
+    "directory": "typescript/grimlock"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
   "dependencies": {
     "@noble/curves": "^2.0.1",
     "argon2": "^0.44.0",
