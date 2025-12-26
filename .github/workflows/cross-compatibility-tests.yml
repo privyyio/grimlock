@@ -33,6 +33,11 @@ jobs:
         with:
           node-version: "18"
 
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3
+
       - name: Make test script executable
         run: chmod +x cross-compatibility-testing/run-tests.sh
 
