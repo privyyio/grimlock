@@ -1,13 +1,14 @@
 /**
  * TypeScript Test Data Generator for Cross-Compatibility Testing
- * 
+ *
  * Generates test data using TypeScript grimlock implementation
  * to be verified by Go grimlock implementation
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import grimlock from '../../typescript/grimlock';
+import * as fs from "fs";
+import * as path from "path";
+import * as crypto from "crypto";
+import grimlock from "../../typescript/grimlock";
 
 interface TestData {
   keyPair: {
@@ -83,7 +84,7 @@ interface TestData {
 
 // Helper to convert Uint8Array to base64
 function toBase64(data: Uint8Array): string {
-  return Buffer.from(data).toString('base64');
+  return Buffer.from(data).toString("base64");
 }
 
 // Helper to convert string to Uint8Array
@@ -92,12 +93,12 @@ function fromString(str: string): Uint8Array {
 }
 
 async function generateTestData(): Promise<void> {
-  console.log('Generating TypeScript test data...');
-  
+  console.log("Generating TypeScript test data...");
+
   const testData: TestData = {} as TestData;
 
   // 1. Key Generation Test
-  console.log('Generating key pair...');
+  console.log("Generating key pair...");
   const keyPair = await grimlock.generateKeyPair();
   testData.keyPair = {
     privateKey: toBase64(keyPair.privateKey),
@@ -105,9 +106,9 @@ async function generateTestData(): Promise<void> {
   };
 
   // 2. Passcode Key Derivation Test
-  console.log('Deriving passcode key...');
-  const passcode = 'MySecurePasscode123!';
-  const salt = crypto.getRandomValues(new Uint8Array(32));
+  console.log("Deriving passcode key...");
+  const passcode = "MySecurePasscode123!";
+  const salt = new Uint8Array(crypto.randomBytes(32));
   const kdfParams = {
     salt,
     argon2Params: {
@@ -129,7 +130,7 @@ async function generateTestData(): Promise<void> {
   };
 
   // 3. Recovery Key Derivation Test
-  console.log('Deriving recovery key...');
+  console.log("Deriving recovery key...");
   const recoveryKey = await grimlock.generateRecoveryKey();
   const recoveryDerivedKey = await grimlock.deriveRecoveryKey(recoveryKey.raw);
   testData.recoveryKeyDerivation = {
@@ -138,10 +139,10 @@ async function generateTestData(): Promise<void> {
   };
 
   // 4. Private Key Encryption Test
-  console.log('Encrypting private key...');
+  console.log("Encrypting private key...");
   const privateKeyToEncrypt = keyPair.privateKey;
   const encryptionKey = derivedKey; // Use the derived key from passcode
-  const aad = fromString('user@example.com');
+  const aad = fromString("user@example.com");
   const encryptedPrivateKey = await grimlock.encryptPrivateKey(
     privateKeyToEncrypt,
     encryptionKey,
@@ -159,19 +160,19 @@ async function generateTestData(): Promise<void> {
   };
 
   // 5. Message Encryption Test
-  console.log('Encrypting message...');
+  console.log("Encrypting message...");
   const userKeyPair = await grimlock.generateKeyPair();
   const payload = {
-    userMessage: 'Hello, this is a test message!',
-    assistantResponse: 'I understand. This is a response.',
+    userMessage: "Hello, this is a test message!",
+    assistantResponse: "I understand. This is a response.",
     context: {
-      timestamp: '2024-01-15T10:30:00Z',
-      metadata: 'test',
+      timestamp: "2024-01-15T10:30:00Z",
+      metadata: "test",
     },
   };
   const context = {
-    conversationId: 'conv-123',
-    messageId: 'msg-456',
+    conversationId: "conv-123",
+    messageId: "msg-456",
   };
   const encryptedMessage = await grimlock.encryptMessage(
     payload,
@@ -201,12 +202,14 @@ async function generateTestData(): Promise<void> {
   };
 
   // 6. ECDH Test
-  console.log('Computing shared secret...');
+  console.log("Computing shared secret...");
   const aliceKeyPair = await grimlock.generateKeyPair();
   const bobKeyPair = await grimlock.generateKeyPair();
-  
+
   // Import ECDH function
-  const { computeSharedSecret } = await import('../../typescript/grimlock/versions/v1/ecdh');
+  const { computeSharedSecret } = await import(
+    "../../typescript/grimlock/versions/v1/ecdh"
+  );
   const sharedSecret = await computeSharedSecret(
     aliceKeyPair.privateKey,
     bobKeyPair.publicKey
@@ -220,11 +223,13 @@ async function generateTestData(): Promise<void> {
   };
 
   // 7. Recovery Key Test
-  console.log('Testing recovery key encryption...');
+  console.log("Testing recovery key encryption...");
   const testRecoveryKey = await grimlock.generateRecoveryKey();
   const privateKeyForRecovery = keyPair.privateKey;
-  const aadForRecovery = fromString('recovery@example.com');
-  const recoveryEncryptionKey = await grimlock.deriveRecoveryKey(testRecoveryKey.raw);
+  const aadForRecovery = fromString("recovery@example.com");
+  const recoveryEncryptionKey = await grimlock.deriveRecoveryKey(
+    testRecoveryKey.raw
+  );
   const encryptedWithRecovery = await grimlock.encryptPrivateKey(
     privateKeyForRecovery,
     recoveryEncryptionKey,
@@ -233,7 +238,7 @@ async function generateTestData(): Promise<void> {
   testData.recoveryKeyTest = {
     recoveryKey: {
       key: toBase64(testRecoveryKey.raw),
-      mnemonic: testRecoveryKey.mnemonic || '',
+      mnemonic: testRecoveryKey.mnemonic || "",
     },
     privateKey: toBase64(privateKeyForRecovery),
     aad: toBase64(aadForRecovery),
@@ -256,20 +261,20 @@ async function generateTestData(): Promise<void> {
   recoveryEncryptionKey.fill(0);
 
   // Write to JSON file
-  const outputPath = path.join(__dirname, '../test-data/ts-generated.json');
+  const outputPath = path.join(__dirname, "../test-data/ts-generated.json");
   const outputDir = path.dirname(outputPath);
-  
+
   // Create directory if it doesn't exist
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
-  
+
   fs.writeFileSync(outputPath, JSON.stringify(testData, null, 2));
   console.log(`✅ Test data generated successfully: ${outputPath}`);
 }
 
 // Run the generator
 generateTestData().catch((error) => {
-  console.error('❌ Failed to generate test data:', error);
+  console.error("❌ Failed to generate test data:", error);
   process.exit(1);
 });
