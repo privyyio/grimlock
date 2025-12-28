@@ -36,7 +36,7 @@ npm install bip39
 ### Default Export (Latest Version)
 
 ```typescript
-import grimlock from '@/lib/crypto';
+import grimlock from '@privyy-io/grimlock';
 
 // Generate key pair
 const keyPair = await grimlock.generateKeyPair();
@@ -61,7 +61,7 @@ const encrypted = await grimlock.encryptPrivateKey(
 ### Explicit Version Selection
 
 ```typescript
-import { v1, v2 } from '@/lib/crypto';
+import { v1, v2 } from '@privyy-io/grimlock';
 
 // Use v1 explicitly
 const keyPair = await v1.generateKeyPair();
@@ -73,7 +73,7 @@ const keyPair = await v1.generateKeyPair();
 ### Version Manager
 
 ```typescript
-import { getVersionManager } from '@/lib/crypto';
+import { getVersionManager } from '@privyy-io/grimlock';
 
 const manager = getVersionManager();
 const latest = manager.getLatestVersion(); // "v1"
@@ -83,7 +83,7 @@ const v1Metadata = manager.getVersion('v1');
 ### Version Detection
 
 ```typescript
-import { detectVersion, getVersionForData } from '@/lib/crypto';
+import { detectVersion, getVersionForData, requiresMigration } from '@privyy-io/grimlock';
 
 const encrypted = await fetchEncryptedMessage(messageId);
 const version = detectVersion(encrypted) || 'v1';
@@ -91,6 +91,9 @@ const version = detectVersion(encrypted) || 'v1';
 // Get appropriate API version
 const crypto = getVersionForData(encrypted);
 const decrypted = await crypto.decryptMessage(encrypted, privateKey, context);
+
+// Check if migration is needed
+const needsMigration = requiresMigration(encrypted, 'v2');
 ```
 
 ## API Reference
@@ -122,6 +125,12 @@ const decrypted = await crypto.decryptMessage(encrypted, privateKey, context);
 
 - `serializeKeyPair(keyPair: KeyPair): SerializedKeyPair` - Serialize key pair to Base64
 - `deserializeKeyPair(serialized: SerializedKeyPair): KeyPair` - Deserialize key pair from Base64
+
+### Version Utilities
+
+- `detectVersion(data: unknown): string | null` - Detect version from encrypted data structure
+- `getVersionForData(data: unknown): GrimLock` - Get the appropriate API version for decrypting data
+- `requiresMigration(data: unknown, targetVersion: string): boolean` - Check if data needs migration to a newer version
 
 ## Constants
 
