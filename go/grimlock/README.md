@@ -140,6 +140,32 @@ func main() {
     
     // Check compatibility
     compatible := manager.IsCompatible("v1", "v1") // true
+    
+    // List all versions
+    versions := manager.ListVersions() // ["v1"]
+    
+    // Check if version is deprecated
+    deprecated, err := manager.IsDeprecated("v1")
+    
+    // Get migration guide
+    guide, err := manager.GetMigrationGuide("v1")
+}
+```
+
+### Creating Grimlock Instances
+
+```go
+import "github.com/privyy-io/grimlock/go/grimlock"
+
+func main() {
+    // Create default instance (latest version)
+    crypto := grimlock.New()
+    
+    // Create instance with specific version
+    crypto, err := grimlock.NewWithVersion("v1")
+    if err != nil {
+        panic(err)
+    }
 }
 ```
 
@@ -241,6 +267,7 @@ func decryptWithAutoVersion(encryptedData interface{}, privateKey []byte) error 
 - `GenerateRecoveryKey() (*types.RecoveryKey, error)` - Generate recovery key
 - `EncryptPrivateKeyWithRecoveryKey(privateKey, recoveryKey, aad []byte) (*types.EncryptedPrivateKeyV1, error)` - Encrypt with recovery key
 - `DecryptPrivateKeyWithRecoveryKey(encrypted *types.EncryptedPrivateKey, recoveryKey, aad []byte) ([]byte, error)` - Decrypt with recovery key
+- `ValidateRecoveryKey(recoveryKey []byte) error` - Validate that a recovery key is well-formed
 
 ### ECDH
 
@@ -250,7 +277,18 @@ func decryptWithAutoVersion(encryptedData interface{}, privateKey []byte) error 
 
 - `SerializeKeyPair(*types.KeyPair) *types.SerializedKeyPair` - Serialize key pair to Base64
 - `DeserializeKeyPair(*types.SerializedKeyPair) (*types.KeyPair, error)` - Deserialize key pair from Base64
+- `SerializeEncryptedPrivateKey(*types.EncryptedPrivateKey) ([]byte, error)` - Serialize encrypted private key to JSON
+- `DeserializeEncryptedPrivateKey([]byte) (*types.EncryptedPrivateKey, error)` - Deserialize encrypted private key from JSON
+- `SerializeEncryptedMessage(*types.EncryptedMessage) ([]byte, error)` - Serialize encrypted message to JSON
+- `DeserializeEncryptedMessage([]byte) (*types.EncryptedMessage, error)` - Deserialize encrypted message from JSON
 - `SecureErase([]byte)` - Securely erase sensitive data
+- `SecureEraseMultiple(...[]byte)` - Securely erase multiple byte slices
+
+### Version Detection
+
+- `DetectVersion(data interface{}) (string, error)` - Detect version from encrypted data
+- `RequiresMigration(data interface{}, targetVersion string) (bool, error)` - Check if data needs migration
+- `GetVersionForData(data interface{}) (string, error)` - Get appropriate API version for data
 
 ## Constants
 
@@ -275,8 +313,12 @@ v1.Constants.RecoveryKeySize       // 32 bytes
 
 // Default Argon2id parameters
 v1.Constants.DefaultArgon2Params.TimeCost     // 4 iterations
-v1.Constants.DefaultArgon2Params.MemoryCost   // 128 MiB
+v1.Constants.DefaultArgon2Params.MemoryCost   // 128 * 1024 KiB (128 MiB)
 v1.Constants.DefaultArgon2Params.Parallelism  // 2 threads
+
+// Salt sizes
+v1.Constants.KDFSaltSize   // 32 bytes (256 bits for Argon2id)
+v1.Constants.HKDFSaltSize  // 32 bytes (256 bits for HKDF)
 ```
 
 ## Versioning
