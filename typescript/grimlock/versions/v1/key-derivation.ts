@@ -204,7 +204,45 @@ async function argon2id(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - argon2-browser types may not be available
       const argon2Module = await import('argon2-browser');
-      const argon2 = (argon2Module as any).default ?? argon2Module;
+      
+      // argon2-browser is a UMD module that exports as default in ESM
+      // Try multiple patterns to get the actual argon2 object
+      let argon2: any;
+      
+      if (typeof (argon2Module as any).default === 'function') {
+        // If default export is a function, it might be a factory
+        argon2 = (argon2Module as any).default;
+      } else if (typeof (argon2Module as any).default === 'object' && (argon2Module as any).default !== null) {
+        // If default export is an object with the functions
+        argon2 = (argon2Module as any).default;
+      } else if (typeof (argon2Module as any).hash === 'function') {
+        // If hash is directly on the module
+        argon2 = argon2Module;
+      } else {
+        // Try to find the actual argon2 object in the module
+        const keys = Object.keys(argon2Module);
+        for (const key of keys) {
+          if (typeof (argon2Module as any)[key] === 'object' && (argon2Module as any)[key]?.hash) {
+            argon2 = (argon2Module as any)[key];
+            break;
+          }
+        }
+      }
+      
+      // If argon2 is a function (factory), call it
+      if (typeof argon2 === 'function') {
+        argon2 = await argon2();
+      }
+      
+      if (!argon2 || typeof argon2.hash !== 'function') {
+        throw new Error(
+          `argon2-browser not loaded correctly. ` +
+          `Module keys: ${Object.keys(argon2Module).join(', ')}. ` +
+          `Default: ${typeof (argon2Module as any).default}. ` +
+          `Has hash: ${typeof (argon2Module as any).hash}`
+        );
+      }
+      
       const result = await argon2.hash({
         pass: password,
         salt: salt,

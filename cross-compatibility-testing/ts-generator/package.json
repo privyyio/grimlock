@@ -3,14 +3,19 @@
   "version": "1.0.0",
   "description": "TypeScript test data generator for Grimlock cross-compatibility tests",
   "scripts": {
-    "generate": "tsx generator.ts"
+    "generate": "vitest run",
+    "test": "vitest run"
   },
   "dependencies": {
     "@privyy-io/grimlock": "file:../../typescript/grimlock"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@vitest/browser": "^4.0.16",
+    "@vitest/browser-playwright": "^4.0.16",
+    "playwright": "^1.57.0",
     "tsx": "^4.7.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.16"
   }
 }
