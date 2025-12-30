@@ -2,6 +2,7 @@
   "name": "@privyy-io/grimlock",
   "version": "1.0.0",
   "description": "Versioned cryptographic operations module for privyy.io.",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -35,7 +36,6 @@
   },
   "dependencies": {
     "@noble/curves": "^2.0.1",
-    "argon2": "^0.44.0",
     "argon2-browser": "^1.18.0"
   },
   "devDependencies": {

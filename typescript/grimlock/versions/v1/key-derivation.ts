@@ -94,8 +94,8 @@ async function hmacSha256(
   data: Uint8Array,
   key: Uint8Array
 ): Promise<Uint8Array> {
+  // Use Web Crypto API (available in browser and Next.js)
   if (typeof globalThis !== 'undefined' && globalThis.crypto?.subtle) {
-    // Browser or modern Node.js: Web Crypto API
     // Use type assertion to satisfy TypeScript's strict BufferSource typing
     const cryptoKey = await globalThis.crypto.subtle.importKey(
       'raw',
@@ -112,11 +112,7 @@ async function hmacSha256(
     );
     return new Uint8Array(signature);
   } else {
-    // Node.js: crypto module
-    const crypto = require('crypto');
-    const hmac = crypto.createHmac('sha256', Buffer.from(key));
-    hmac.update(Buffer.from(data));
-    return new Uint8Array(hmac.digest());
+    throw new Error('Web Crypto API is required but not available');
   }
 }
 
@@ -163,8 +159,8 @@ async function hmacSha512(
   data: Uint8Array,
   key: Uint8Array
 ): Promise<Uint8Array> {
+  // Use Web Crypto API (available in browser and Next.js)
   if (typeof globalThis !== 'undefined' && globalThis.crypto?.subtle) {
-    // Browser or modern Node.js: Web Crypto API
     // Use type assertion to satisfy TypeScript's strict BufferSource typing
     const cryptoKey = await globalThis.crypto.subtle.importKey(
       'raw',
@@ -181,11 +177,7 @@ async function hmacSha512(
     );
     return new Uint8Array(signature);
   } else {
-    // Node.js: crypto module
-    const crypto = require('crypto');
-    const hmac = crypto.createHmac('sha512', Buffer.from(key));
-    hmac.update(Buffer.from(data));
-    return new Uint8Array(hmac.digest());
+    throw new Error('Web Crypto API is required but not available');
   }
 }
 
@@ -206,59 +198,28 @@ async function argon2id(
   memoryCost: number,
   parallelism: number
 ): Promise<Uint8Array> {
-  // Try to use argon2 package (Node.js) or argon2-browser (browser)
+  // Use argon2-browser for both browser and Next.js (works in both environments)
   try {
-    if (typeof globalThis !== 'undefined' && typeof (globalThis as any).document !== 'undefined') {
-      // Browser: try argon2-browser
-      // Note: argon2-browser API may vary, adjust as needed
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - argon2-browser types may not be available
-      const argon2 = await import('argon2-browser');
-      const result = await argon2.hash({
-        pass: password,
-        salt: salt,
-        time: timeCost,
-        mem: memoryCost,
-        parallelism: parallelism,
-        hashLen: 32,
-        type: argon2.ArgonType?.Argon2id || 2, // Argon2id type
-      });
-      return new Uint8Array(result.hash);
-    } else {
-      // Node.js: try argon2
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - argon2 types may vary
-      const argon2 = await import('argon2');
-      // argon2.hash returns a PHC format string: $argon2id$v=19$m=X,t=Y,p=Z$salt$hash
-      const hashString = await argon2.hash(Buffer.from(password), {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore - argon2 types may vary
-        type: argon2.argon2id || 2,
-        salt: Buffer.from(salt),
-        timeCost,
-        memoryCost,
-        parallelism,
-        hashLength: 32,
-      });
-      
-      // Extract the hash from the PHC format string
-      // Format: $argon2id$v=19$m=131072,t=4,p=2$<base64-salt>$<base64-hash>
-      const parts = hashString.split('$');
-      if (parts.length < 6) {
-        throw new Error('Invalid Argon2 hash format');
-      }
-      
-      // The last part is the base64-encoded hash
-      const hashB64 = parts[parts.length - 1];
-      const hashBuffer = Buffer.from(hashB64, 'base64');
-      
-      return new Uint8Array(hashBuffer);
-    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - argon2-browser types may not be available
+    const argon2Module = await import('argon2-browser');
+    // argon2-browser exports everything under default
+    const argon2 = argon2Module.default;
+    const result = await argon2.hash({
+      pass: password,
+      salt: salt,
+      time: timeCost,
+      mem: memoryCost,
+      parallelism: parallelism,
+      hashLen: 32,
+      type: argon2.ArgonType?.Argon2id || 2, // Argon2id type
+    });
+    return new Uint8Array(result.hash);
   } catch (error) {
     // Fallback: throw error with instructions
     throw new Error(
-      'Argon2id requires argon2 package (Node.js) or argon2-browser (browser). ' +
-      'Please install it: npm install argon2 (or argon2-browser for browser). ' +
+      'Argon2id requires argon2-browser package. ' +
+      'Please install it: npm install argon2-browser. ' +
       `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }

@@ -12,17 +12,13 @@ import { base64Encode, base64Decode } from '../../utils/encoding';
  * Generate a cryptographically secure random 32-byte array
  */
 function getRandomBytes(length: number): Uint8Array {
+  // Use Web Crypto API (available in browser and Next.js)
   if (typeof globalThis !== 'undefined' && (globalThis.crypto?.getRandomValues instanceof Function)) {
-    // Browser or modern Node.js environment
     const array = new Uint8Array(length);
     globalThis.crypto.getRandomValues(array);
     return array;
-  } else if (typeof require !== 'undefined') {
-    // Node.js environment
-    const crypto = require('crypto');
-    return new Uint8Array(crypto.randomBytes(length));
   } else {
-    throw new Error('No secure random number generator available');
+    throw new Error('Web Crypto API is required but not available');
   }
 }
 
