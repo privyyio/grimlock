@@ -85,12 +85,12 @@ if [ ! -f "package.json" ]; then
   echo "Error: package.json not found in typescript/grimlock"
   exit 1
 fi
-npm install || {
+pnpm install || {
   echo "Error: Failed to install grimlock dependencies"
   exit 1
 }
 echo "  • Building TypeScript grimlock..."
-npm run build || {
+pnpm run build || {
   echo "Error: Failed to build grimlock"
   exit 1
 }
@@ -112,10 +112,8 @@ if [ ! -d "../../typescript/grimlock/dist" ]; then
   echo "Error: grimlock dist directory not found. Build may have failed."
   exit 1
 fi
-npm install || {
+pnpm install || {
   echo "Error: Failed to install generator dependencies"
-  echo "Attempting to show npm error details..."
-  npm install --loglevel=error
   exit 1
 }
 cd ..
@@ -126,10 +124,8 @@ if [ ! -f "package.json" ]; then
   echo "Error: package.json not found in ts-verifier"
   exit 1
 fi
-npm install || {
+pnpm install || {
   echo "Error: Failed to install verifier dependencies"
-  echo "Attempting to show npm error details..."
-  npm install --loglevel=error
   exit 1
 }
 cd ..
@@ -147,7 +143,7 @@ TOTAL_TESTS=$((TOTAL_TESTS + 2))
 run_test "Generate test data with Go" "cd go-generator && go run main.go && cd .."
 
 # Generate test data using TypeScript
-run_test "Generate test data with TypeScript" "cd ts-generator && npm run generate && cd .."
+run_test "Generate test data with TypeScript" "cd ts-generator && pnpm run generate && cd .."
 
 # ============================================================================
 # Phase 3: Verify Cross-Compatibility
@@ -157,7 +153,7 @@ print_section "Phase 3: Verify Cross-Compatibility"
 TOTAL_TESTS=$((TOTAL_TESTS + 2))
 
 # Verify Go-generated data with TypeScript
-run_test "Verify Go data with TypeScript" "cd ts-verifier && npm run verify && cd .."
+run_test "Verify Go data with TypeScript" "cd ts-verifier && pnpm run verify && cd .."
 
 # Verify TypeScript-generated data with Go
 run_test "Verify TypeScript data with Go" "cd go-verifier && go run main.go && cd .."

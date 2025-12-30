@@ -199,8 +199,8 @@ async function aesGcmEncrypt(
   iv: Uint8Array,
   aad?: Uint8Array
 ): Promise<{ ciphertext: Uint8Array; tag: Uint8Array }> {
+  // Use Web Crypto API (available in browser and Next.js)
   if (typeof globalThis !== 'undefined' && globalThis.crypto?.subtle) {
-    // Browser or modern Node.js: Web Crypto API
     // Use type assertion to satisfy TypeScript's strict BufferSource typing
     const cryptoKey = await globalThis.crypto.subtle.importKey(
       'raw',
@@ -228,25 +228,7 @@ async function aesGcmEncrypt(
 
     return { ciphertext, tag };
   } else {
-    // Node.js: crypto module
-    const crypto = require('crypto');
-    const cipher = crypto.createCipheriv('aes-256-gcm', Buffer.from(key), Buffer.from(iv));
-
-    if (aad) {
-      cipher.setAAD(Buffer.from(aad));
-    }
-
-    const ciphertext = Buffer.concat([
-      cipher.update(Buffer.from(plaintext)),
-      cipher.final(),
-    ]);
-
-    const tag = cipher.getAuthTag();
-
-    return {
-      ciphertext: new Uint8Array(ciphertext),
-      tag: new Uint8Array(tag),
-    };
+    throw new Error('Web Crypto API is required but not available');
   }
 }
 
@@ -260,8 +242,8 @@ async function aesGcmDecrypt(
   tag: Uint8Array,
   aad?: Uint8Array
 ): Promise<Uint8Array> {
+  // Use Web Crypto API (available in browser and Next.js)
   if (typeof globalThis !== 'undefined' && globalThis.crypto?.subtle) {
-    // Browser or modern Node.js: Web Crypto API
     // Use type assertion to satisfy TypeScript's strict BufferSource typing
     const cryptoKey = await globalThis.crypto.subtle.importKey(
       'raw',
@@ -289,22 +271,7 @@ async function aesGcmDecrypt(
 
     return new Uint8Array(plaintext);
   } else {
-    // Node.js: crypto module
-    const crypto = require('crypto');
-    const decipher = crypto.createDecipheriv('aes-256-gcm', Buffer.from(key), Buffer.from(iv));
-
-    if (aad) {
-      decipher.setAAD(Buffer.from(aad));
-    }
-
-    decipher.setAuthTag(Buffer.from(tag));
-
-    const plaintext = Buffer.concat([
-      decipher.update(Buffer.from(ciphertext)),
-      decipher.final(),
-    ]);
-
-    return new Uint8Array(plaintext);
+    throw new Error('Web Crypto API is required but not available');
   }
 }
 
@@ -312,14 +279,12 @@ async function aesGcmDecrypt(
  * Generate random bytes
  */
 function getRandomBytes(length: number): Uint8Array {
+  // Use Web Crypto API (available in browser and Next.js)
   if (typeof globalThis !== 'undefined' && (globalThis.crypto?.getRandomValues instanceof Function)) {
-    // Browser or modern Node.js environment
     const array = new Uint8Array(length);
     globalThis.crypto.getRandomValues(array);
     return array;
   } else {
-    // Node.js environment
-    const crypto = require('crypto');
-    return new Uint8Array(crypto.randomBytes(length));
+    throw new Error('Web Crypto API is required but not available');
   }
 }

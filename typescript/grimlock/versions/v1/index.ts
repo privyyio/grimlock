@@ -38,14 +38,13 @@ import { serializeKeyPair, deserializeKeyPair } from '../../utils/serialization'
 import { CRYPTO_CONSTANTS_V1 } from './constants';
 // Helper function for generating random bytes
 function getRandomBytesForEncryption(length: number): Uint8Array {
+  // Use Web Crypto API (available in browser and Next.js)
   if (typeof globalThis !== 'undefined' && (globalThis.crypto?.getRandomValues instanceof Function)) {
     const array = new Uint8Array(length);
     globalThis.crypto.getRandomValues(array);
     return array;
   } else {
-    // For Node.js environments
-    const crypto = require('crypto');
-    return new Uint8Array(crypto.randomBytes(length));
+    throw new Error('Web Crypto API is required but not available');
   }
 }
 
