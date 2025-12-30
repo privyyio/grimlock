@@ -2,10 +2,11 @@
  * V1 Key Derivation for Grimlock crypto module
  * 
  * Implements:
- * - Argon2id for passcode key derivation
+ * - Argon2id for passcode key derivation (Node.js only, not supported in browser)
  * - HKDF-SHA512 for shared secret and recovery key derivation
  * 
- * Note: Argon2id requires argon2 package (Node.js) or argon2-browser (browser).
+ * Note: Argon2id requires argon2 package and is only available in Node.js environments.
+ * Browser environments are not supported for Argon2id in this build.
  * HKDF uses Web Crypto API where available.
  */
 
@@ -198,26 +199,17 @@ async function argon2id(
   memoryCost: number,
   parallelism: number
 ): Promise<Uint8Array> {
-  try {
-    // Browser / Next.js (browser or edge runtime): use argon2-browser
-    if (typeof globalThis !== 'undefined' && typeof (globalThis as any).document !== 'undefined') {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - argon2-browser types may not be available
-      const argon2Module = await import('argon2-browser');
-      const argon2 = (argon2Module as any).default ?? argon2Module;
-      const result = await argon2.hash({
-        pass: password,
-        salt: salt,
-        time: timeCost,
-        mem: memoryCost,
-        parallelism: parallelism,
-        hashLen: 32,
-        type: (argon2.ArgonType?.Argon2id) || 2, // Argon2id type
-      });
-      return new Uint8Array(result.hash);
-    }
+  // Argon2id is disabled in browser environments - only Node.js is supported
+  if (typeof globalThis !== 'undefined' && typeof (globalThis as any).document !== 'undefined') {
+    throw new Error(
+      'Argon2id is not supported in browser environments. ' +
+      'This function is only available in Node.js environments. ' +
+      'For browser environments, consider using a different key derivation method.'
+    );
+  }
 
-    // Node.js (tests, cross-compat generator): use argon2 native module
+  // Node.js only: use argon2 native module
+  try {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - argon2 types may not be available
     const argon2Node = await import('argon2');
@@ -246,8 +238,8 @@ async function argon2id(
     return new Uint8Array(hashBuffer);
   } catch (error) {
     throw new Error(
-      'Argon2id requires argon2 (Node.js) or argon2-browser (browser). ' +
-      'Please install the appropriate package: npm install argon2 argon2-browser. ' +
+      'Argon2id requires argon2 package in Node.js environment. ' +
+      'Please install it: npm install argon2. ' +
       `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
