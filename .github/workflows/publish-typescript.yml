@@ -86,7 +86,22 @@ jobs:
         working-directory: ./typescript/grimlock
         run: npm run build
 
+      - name: Get Playwright version
+        id: playwright-version
+        working-directory: ./typescript/grimlock
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/playwright'].version")" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         working-directory: ./typescript/grimlock
         run: npx playwright install --with-deps chromium
 
@@ -96,10 +111,14 @@ jobs:
           echo "Running tests..."
           npm test
 
+      - name: Configure npm authentication
+        working-directory: ./typescript/grimlock
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
+          echo "@privyy-io:registry=https://npm.pkg.github.com" >> .npmrc
+
       - name: Publish to GitHub Packages
         working-directory: ./typescript/grimlock
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Repository: ${{ github.repository }}"
           echo "Package name: @privyy-io/grimlock"

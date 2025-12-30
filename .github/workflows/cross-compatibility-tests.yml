@@ -36,7 +36,22 @@ jobs:
       - name: Make test script executable
         run: chmod +x cross-compatibility-testing/run-tests.sh
 
+      - name: Get Playwright version
+        id: playwright-version
+        working-directory: typescript/grimlock
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/playwright'].version")" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
         working-directory: typescript/grimlock
 
