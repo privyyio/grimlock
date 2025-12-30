@@ -5,10 +5,11 @@
  * - Argon2id for passcode key derivation
  * - HKDF-SHA512 for shared secret and recovery key derivation
  * 
- * Note: Argon2id requires argon2 package (Node.js) or argon2-browser (browser).
+ * Note: Argon2id requires argon2 package (Node.js).
  * HKDF uses Web Crypto API where available.
  */
 
+import * as argon2 from 'argon2';
 import type { KdfParams } from '../../types/common';
 import { CRYPTO_CONSTANTS_V1 } from './constants';
 
@@ -192,6 +193,8 @@ async function hmacSha512(
 /**
  * Argon2id key derivation
  * 
+ * Uses the argon2 npm package to derive keys directly (matching Go implementation).
+ * 
  * @param password - Password bytes
  * @param salt - Salt bytes
  * @param timeCost - Time cost (iterations)
@@ -206,60 +209,22 @@ async function argon2id(
   memoryCost: number,
   parallelism: number
 ): Promise<Uint8Array> {
-  // Try to use argon2 package (Node.js) or argon2-browser (browser)
   try {
-    if (typeof globalThis !== 'undefined' && typeof (globalThis as any).document !== 'undefined') {
-      // Browser: try argon2-browser
-      // Note: argon2-browser API may vary, adjust as needed
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - argon2-browser types may not be available
-      const argon2 = await import('argon2-browser');
-      const result = await argon2.hash({
-        pass: password,
-        salt: salt,
-        time: timeCost,
-        mem: memoryCost,
-        parallelism: parallelism,
-        hashLen: 32,
-        type: argon2.ArgonType?.Argon2id || 2, // Argon2id type
-      });
-      return new Uint8Array(result.hash);
-    } else {
-      // Node.js: try argon2
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - argon2 types may vary
-      const argon2 = await import('argon2');
-      // argon2.hash returns a PHC format string: $argon2id$v=19$m=X,t=Y,p=Z$salt$hash
-      const hashString = await argon2.hash(Buffer.from(password), {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore - argon2 types may vary
-        type: argon2.argon2id || 2,
-        salt: Buffer.from(salt),
-        timeCost,
-        memoryCost,
-        parallelism,
-        hashLength: 32,
-      });
-      
-      // Extract the hash from the PHC format string
-      // Format: $argon2id$v=19$m=131072,t=4,p=2$<base64-salt>$<base64-hash>
-      const parts = hashString.split('$');
-      if (parts.length < 6) {
-        throw new Error('Invalid Argon2 hash format');
-      }
-      
-      // The last part is the base64-encoded hash
-      const hashB64 = parts[parts.length - 1];
-      const hashBuffer = Buffer.from(hashB64, 'base64');
-      
-      return new Uint8Array(hashBuffer);
-    }
+    // Use argon2 package with raw option to get raw bytes directly (matching Go's argon2.IDKey)
+    const hashBuffer = await argon2.hash(Buffer.from(password), {
+      type: argon2.argon2id,
+      salt: Buffer.from(salt),
+      timeCost,
+      memoryCost,
+      parallelism,
+      hashLength: 32,
+      raw: true, // Return raw Buffer instead of PHC format string
+    });
+    
+    return new Uint8Array(hashBuffer);
   } catch (error) {
-    // Fallback: throw error with instructions
     throw new Error(
-      'Argon2id requires argon2 package (Node.js) or argon2-browser (browser). ' +
-      'Please install it: npm install argon2 (or argon2-browser for browser). ' +
-      `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Argon2id key derivation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
 }

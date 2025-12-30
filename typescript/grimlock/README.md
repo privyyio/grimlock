@@ -22,9 +22,6 @@ npm install @noble/curves
 # For Argon2id (Node.js)
 npm install argon2
 
-# For Argon2id (Browser)
-npm install argon2-browser
-
 # For BIP39 mnemonic support (optional)
 npm install bip39
 ```
@@ -166,7 +163,7 @@ Each version maintains backward compatibility for decryption operations while al
 - **Browser**: Uses Web Crypto API for AES-GCM, HMAC, HKDF
 - **Node.js**: Uses Node.js crypto module for AES-GCM, HMAC, HKDF
 - **X25519**: Requires @noble/curves (works in both environments)
-- **Argon2id**: Requires argon2 (Node.js) or argon2-browser (browser)
+- **Argon2id**: Requires argon2 package (Node.js)
 
 ## License
 
