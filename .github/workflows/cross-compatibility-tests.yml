@@ -36,6 +36,10 @@ jobs:
       - name: Make test script executable
         run: chmod +x cross-compatibility-testing/run-tests.sh
 
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: typescript/grimlock
+
       - name: Run cross-compatibility tests
         working-directory: cross-compatibility-testing
         run: ./run-tests.sh

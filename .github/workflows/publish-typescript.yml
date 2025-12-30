@@ -86,6 +86,10 @@ jobs:
         working-directory: ./typescript/grimlock
         run: npm run build
 
+      - name: Install Playwright Browsers
+        working-directory: ./typescript/grimlock
+        run: npx playwright install --with-deps chromium
+
       - name: Run tests
         working-directory: ./typescript/grimlock
         run: |
