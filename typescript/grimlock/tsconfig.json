@@ -22,6 +22,6 @@
     "dist",
     "**/*.spec.ts",
     "test.ts",
-    "vitest.config.ts"
+    "vitest.config.mts"
   ]
 }
