@@ -10,8 +10,10 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "tsx test.ts",
-    "test:node": "node --loader ts-node/esm test.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:legacy": "tsx test.ts",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -35,13 +37,16 @@
   },
   "dependencies": {
     "@noble/curves": "^2.0.1",
-    "argon2": "^0.44.0",
-    "argon2-browser": "^1.18.0"
+    "hash-wasm": "^4.11.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@vitest/browser": "^4.0.16",
+    "@vitest/browser-playwright": "^4.0.16",
+    "playwright": "^1.57.0",
     "ts-node": "^10.9.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^4.0.16"
   }
 }
