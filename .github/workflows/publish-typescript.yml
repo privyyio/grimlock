@@ -1,4 +1,4 @@
-name: Publish TypeScript Package to GitHub Packages
+name: Publish TS Package
 
 on:
   push:
@@ -48,16 +48,51 @@ jobs:
 
       - name: Set package version
         id: package_version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
             VERSION="${{ github.event.inputs.version }}"
           elif [ -n "${{ steps.tag_version.outputs.version }}" ]; then
             VERSION="${{ steps.tag_version.outputs.version }}"
           else
-            # Extract version from package.json and bump patch version
-            VERSION=$(node -p "require('./typescript/grimlock/package.json').version")
-            # For main branch pushes, append -dev.<timestamp>
-            VERSION="${VERSION}-dev.$(date +%s)"
+            # Extract base version from package.json
+            BASE_VERSION=$(node -p "require('./typescript/grimlock/package.json').version")
+            
+            # Try to get versions from GitHub Packages API (try org first, then user)
+            OWNER="${{ github.repository_owner }}"
+            VERSIONS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/orgs/${OWNER}/packages/npm/grimlock/versions" 2>/dev/null)
+            
+            # If org fails (404), try user endpoint
+            if [ -z "$VERSIONS" ] || echo "$VERSIONS" | grep -q "Not Found"; then
+              VERSIONS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/users/${OWNER}/packages/npm/grimlock/versions" 2>/dev/null || echo "[]")
+            fi
+            
+            # Find the highest dev number for this base version
+            LATEST_DEV=$(echo "$VERSIONS" | node -e "
+              try {
+                const versions = JSON.parse(require('fs').readFileSync(0, 'utf-8'));
+                const devVersions = versions
+                  .map(v => v.name)
+                  .filter(v => v && v.startsWith('${BASE_VERSION}-dev.'))
+                  .map(v => parseInt(v.split('-dev.')[1]))
+                  .filter(n => !isNaN(n));
+                console.log(devVersions.length > 0 ? Math.max(...devVersions) : 0);
+              } catch (e) {
+                console.log(0);
+              }
+            " 2>/dev/null || echo "0")
+            
+            # Increment the dev number
+            DEV_NUMBER=$((LATEST_DEV + 1))
+            VERSION="${BASE_VERSION}-dev.${DEV_NUMBER}"
+            echo "Base version: ${BASE_VERSION}"
+            echo "Latest dev number: ${LATEST_DEV}"
+            echo "New version: ${VERSION}"
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Setting version to: $VERSION"
