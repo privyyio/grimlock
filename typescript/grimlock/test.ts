@@ -571,13 +571,13 @@ async function main(): Promise<void> {
   }
 }
 
-// Run the test suite
-if (require.main === module) {
-  main().catch((error) => {
-    console.error(`${colors.red}Fatal error:${colors.reset}`, error);
-    process.exit(1);
-  });
-}
+// Run the test suite (ESM-friendly entrypoint)
+// This file is intended to be executed directly via the npm script (`npm test`),
+// so we can safely invoke main() unconditionally in ESM.
+main().catch((error) => {
+  console.error(`${colors.red}Fatal error:${colors.reset}`, error);
+  process.exit(1);
+});
 
 export {
   runTest,
