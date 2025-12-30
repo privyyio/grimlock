@@ -1,7 +1,19 @@
 import { defineConfig } from "vitest/config";
 import { playwright } from "@vitest/browser-playwright";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
 
 export default defineConfig({
+  plugins: [wasm(), topLevelAwait()],
+  optimizeDeps: {
+    exclude: ["argon2-browser"],
+    esbuildOptions: {
+      target: "esnext",
+    },
+  },
+  build: {
+    target: "esnext",
+  },
   test: {
     browser: {
       enabled: true,
