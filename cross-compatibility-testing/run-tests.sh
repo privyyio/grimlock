@@ -3,7 +3,7 @@
 # Grimlock Cross-Compatibility Test Suite
 # ========================================
 # This script runs comprehensive cross-compatibility tests between
-# Go and TypeScript implementations of Grimlock.
+# Go, TypeScript, and Python implementations of Grimlock.
 
 set -e  # Exit on any error
 
@@ -134,6 +134,29 @@ npm install || {
 }
 cd ..
 
+# Install Python dependencies
+echo "  • Checking Python dependencies..."
+if ! command -v python3 &> /dev/null; then
+  echo "Error: python3 not found"
+  exit 1
+fi
+cd ../python/grimlock
+if [ -f "pyproject.toml" ]; then
+  if command -v poetry &> /dev/null; then
+    echo "  • Installing Python dependencies with Poetry..."
+    poetry install || {
+      echo "Error: Failed to install Python dependencies"
+      exit 1
+    }
+  else
+    echo "  ⚠️  Poetry not found, skipping Python dependency installation"
+    echo "     Install Poetry to run Python tests: https://python-poetry.org/docs/#installation"
+  fi
+else
+  echo "  ⚠️  pyproject.toml not found, skipping Python dependency installation"
+fi
+cd ../../cross-compatibility-testing
+
 echo -e "${GREEN}✓ All dependencies installed${NC}"
 
 # ============================================================================
@@ -141,7 +164,7 @@ echo -e "${GREEN}✓ All dependencies installed${NC}"
 # ============================================================================
 print_section "Phase 2: Generate Test Data"
 
-TOTAL_TESTS=$((TOTAL_TESTS + 2))
+TOTAL_TESTS=$((TOTAL_TESTS + 3))
 
 # Generate test data using Go
 run_test "Generate test data with Go" "cd go-generator && go run main.go && cd .."
@@ -149,18 +172,48 @@ run_test "Generate test data with Go" "cd go-generator && go run main.go && cd .
 # Generate test data using TypeScript
 run_test "Generate test data with TypeScript" "cd ts-generator && npm run generate && cd .."
 
+# Generate test data using Python
+if command -v python3 &> /dev/null && [ -f "python-generator/generator.py" ]; then
+  run_test "Generate test data with Python" "cd ../python/grimlock && poetry run python ../../cross-compatibility-testing/python-generator/generator.py && cd ../../cross-compatibility-testing"
+else
+  echo -e "${YELLOW}⚠ Skipping Python generator (python3 not found or generator.py missing)${NC}"
+fi
+
 # ============================================================================
 # Phase 3: Verify Cross-Compatibility
 # ============================================================================
 print_section "Phase 3: Verify Cross-Compatibility"
 
-TOTAL_TESTS=$((TOTAL_TESTS + 2))
+TOTAL_TESTS=$((TOTAL_TESTS + 6))
 
 # Verify Go-generated data with TypeScript
 run_test "Verify Go data with TypeScript" "cd ts-verifier && npm run verify && cd .."
 
 # Verify TypeScript-generated data with Go
 run_test "Verify TypeScript data with Go" "cd go-verifier && go run main.go && cd .."
+
+# Verify Go-generated data with Python
+if command -v python3 &> /dev/null && [ -f "python-verifier/verifier.py" ]; then
+  run_test "Verify Go data with Python" "cd ../python/grimlock && poetry run python ../../cross-compatibility-testing/python-verifier/verifier.py && cd ../../cross-compatibility-testing"
+else
+  echo -e "${YELLOW}⚠ Skipping Python verifier (python3 not found or verifier.py missing)${NC}"
+fi
+
+# Verify TypeScript-generated data with Python
+if command -v python3 &> /dev/null && [ -f "python-verifier/verifier.py" ]; then
+  # Note: This would require updating verifier.py to handle TypeScript data
+  echo -e "${YELLOW}⚠ TypeScript→Python verification (to be implemented)${NC}"
+fi
+
+# Verify Python-generated data with Go
+if [ -f "test-data/python-generated.json" ]; then
+  echo -e "${YELLOW}⚠ Python→Go verification (to be implemented in go-verifier)${NC}"
+fi
+
+# Verify Python-generated data with TypeScript
+if [ -f "test-data/python-generated.json" ]; then
+  echo -e "${YELLOW}⚠ Python→TypeScript verification (to be implemented in ts-verifier)${NC}"
+fi
 
 # ============================================================================
 # Phase 4: Summary
