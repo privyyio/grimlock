@@ -1,0 +1,106 @@
+name: Publish Python Package
+
+on:
+  push:
+    tags:
+      - "python/v*"
+    branches:
+      - main
+    paths:
+      - "python/grimlock/**"
+      - ".github/workflows/publish-python.yml"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g., 1.0.0)"
+        required: false
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Extract version from tag (if tag push)
+        if: startsWith(github.ref, 'refs/tags/python/')
+        id: tag_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/python/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set package version
+        id: package_version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [ -n "${{ steps.tag_version.outputs.version }}" ]; then
+            VERSION="${{ steps.tag_version.outputs.version }}"
+          else
+            # Extract base version from pyproject.toml
+            BASE_VERSION=$(grep '^version = ' python/grimlock/pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+
+            # Query PyPI for existing dev versions
+            PYPI_DATA=$(curl -s "https://pypi.org/pypi/grimlock/json" 2>/dev/null || echo "{}")
+
+            # Find the highest dev number for this base version
+            LATEST_DEV=$(echo "$PYPI_DATA" | python3 -c "
+          import sys, json
+          try:
+              data = json.load(sys.stdin)
+              releases = list(data.get('releases', {}).keys())
+              base = '${BASE_VERSION}'
+              prefix = base + '.dev'
+              devs = [int(v.split('.dev')[1]) for v in releases if v.startswith(prefix) and v.split('.dev')[1].isdigit()]
+              print(max(devs) if devs else 0)
+          except Exception:
+              print(0)
+          " 2>/dev/null || echo "0")
+
+            DEV_NUMBER=$((LATEST_DEV + 1))
+            VERSION="${BASE_VERSION}.dev${DEV_NUMBER}"
+            echo "Base version: ${BASE_VERSION}"
+            echo "Latest dev number: ${LATEST_DEV}"
+            echo "New version: ${VERSION}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Setting version to: $VERSION"
+
+      - name: Update pyproject.toml version
+        working-directory: ./python/grimlock
+        run: poetry version "${{ steps.package_version.outputs.version }}"
+
+      - name: Install dependencies
+        working-directory: ./python/grimlock
+        run: poetry install
+
+      - name: Run tests
+        working-directory: ./python/grimlock
+        run: |
+          echo "Running tests..."
+          poetry run pytest
+
+      - name: Build package
+        working-directory: ./python/grimlock
+        run: poetry build
+
+      - name: Publish to PyPI
+        working-directory: ./python/grimlock
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          echo "Package name: grimlock"
+          echo "Publishing to PyPI..."
+          poetry publish
