@@ -32,7 +32,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Poetry
-        run: pip install poetry
+        run: pipx install poetry
 
       - name: Extract version from tag (if tag push)
         if: startsWith(github.ref, 'refs/tags/python/')
