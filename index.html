@@ -6,337 +6,340 @@
   <title>Grimlock — Versioned Cryptographic Operations</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     :root {
-      --off-white: #F5F0E8;
-      --parchment: #EDE7D9;
-      --ink: #1A1612;
-      --ink-muted: #3D3530;
-      --ink-light: #6B5E54;
-      --gold: #A8832A;
-      --gold-light: #C9A84C;
-      --gold-pale: #E8D9A0;
-      --rule: #C4B49A;
-      --rule-light: #DDD2C0;
+      --bg: #0b0c0e;
+      --bg2: #111318;
+      --surface: #181b22;
+      --surface2: #1e222c;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
+      --text: #e8eaf0;
+      --muted: #8b91a0;
+      --faint: #4a5060;
+      --accent: #4f8ef7;
+      --accent2: #2563eb;
+      --accent-glow: rgba(79,142,247,0.18);
+      --amber: #f59e0b;
+      --amber-dim: rgba(245,158,11,0.12);
+      --green: #22c55e;
+      --green-dim: rgba(34,197,94,0.10);
+      --red: #ef4444;
+      --red-dim: rgba(239,68,68,0.10);
+      --purple: #a78bfa;
+      --purple-dim: rgba(167,139,250,0.10);
+
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'Fraunces', Georgia, serif;
+      --font-mono: 'IBM Plex Mono', monospace;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
 
     body {
-      background-color: var(--off-white);
-      color: var(--ink);
-      font-family: 'Lora', Georgia, serif;
-      font-size: 17px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
-    /* ── Masthead ── */
-    .masthead {
-      border-bottom: 3px double var(--rule);
-      padding: 28px 0 20px;
-      text-align: center;
-      background: var(--off-white);
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 0;
     }
 
-    .masthead-eyebrow {
-      font-family: 'Lora', serif;
-      font-size: 11px;
-      font-style: italic;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--ink-light);
-      margin-bottom: 10px;
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
     }
 
-    .masthead-logo {
-      font-family: 'Playfair Display', 'Times New Roman', serif;
-      font-size: clamp(52px, 8vw, 88px);
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      line-height: 1;
-      color: var(--ink);
-      margin-bottom: 10px;
-    }
-
-    .masthead-rule {
+    /* ─── ALERT BAR ─────────────────────────────────── */
+    .alert-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg2);
+      padding: 9px 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
-      margin: 10px auto 14px;
+      gap: 16px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
     }
 
-    .masthead-rule::before,
-    .masthead-rule::after {
-      content: '';
-      display: block;
-      height: 1px;
-      width: 80px;
-      background: var(--gold);
+    .alert-bar a {
+      color: var(--muted);
+      text-decoration: none;
     }
 
-    .masthead-ornament {
-      color: var(--gold);
-      font-size: 18px;
+    .alert-bar a:hover {
+      color: var(--accent);
+      text-decoration: none;
     }
 
-    .masthead-tagline {
-      font-family: 'Lora', serif;
-      font-style: italic;
-      font-size: 15px;
-      color: var(--ink-light);
+    .alert-bar .sep { color: var(--faint); }
+
+    /* ─── HERO ──────────────────────────────────────── */
+    .hero {
+      padding: 72px 0 56px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(56px, 10vw, 120px);
+      line-height: 0.92;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .hero h1 span { color: var(--green); }
+
+    .hero-subtitle {
+      font-family: var(--font-display);
+      font-size: clamp(15px, 2.2vw, 19px);
+      color: var(--muted);
+      margin: 20px 0 40px;
+      max-width: 600px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 36px;
+    }
+
+    .stat-block {
+      background: var(--surface);
+      padding: 20px 22px;
+      animation: fadeIn 0.6s ease both;
+    }
+
+    .stat-block:nth-child(1) { animation-delay: 0.1s; }
+    .stat-block:nth-child(2) { animation-delay: 0.2s; }
+    .stat-block:nth-child(3) { animation-delay: 0.3s; }
+    .stat-block:nth-child(4) { animation-delay: 0.4s; }
+    .stat-block:nth-child(5) { animation-delay: 0.5s; }
+    .stat-block:nth-child(6) { animation-delay: 0.6s; }
+
+    .stat-block:hover { background: var(--surface2); }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 22px;
+      line-height: 1;
+      color: var(--text);
+      margin-bottom: 4px;
       letter-spacing: 0.04em;
     }
 
-    /* ── Nav strip ── */
-    .nav-strip {
-      border-top: 1px solid var(--rule-light);
-      border-bottom: 2px solid var(--ink);
-      padding: 9px 0;
-      text-align: center;
-      background: var(--off-white);
-    }
-
-    .nav-strip nav {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0;
-    }
-
-    .nav-strip a {
-      font-family: 'Lora', serif;
-      font-size: 12px;
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--ink);
-      text-decoration: none;
-      padding: 0 18px;
-      border-right: 1px solid var(--rule);
+      color: var(--muted);
     }
 
-    .nav-strip a:last-child {
-      border-right: none;
-    }
-
-    .nav-strip a:hover {
-      color: var(--gold);
-    }
-
-    /* ── Layout ── */
-    .container {
-      max-width: 1060px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    section {
-      padding: 64px 0;
-    }
-
-    .section-label {
-      font-family: 'Lora', serif;
-      font-size: 10.5px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 6px;
-    }
-
-    h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(28px, 4vw, 40px);
-      font-weight: 600;
-      line-height: 1.2;
-      color: var(--ink);
-      margin-bottom: 20px;
-    }
-
-    h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 21px;
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 10px;
-    }
-
-    p {
-      color: var(--ink-muted);
-      margin-bottom: 16px;
-    }
-
-    /* ── Hero / Lead ── */
-    .hero {
-      padding: 72px 0 56px;
-      border-bottom: 1px solid var(--rule);
-    }
-
-    .hero-inner {
-      display: grid;
-      grid-template-columns: 1fr 1px 1fr;
-      gap: 0 40px;
-      align-items: start;
-    }
-
-    .hero-divider {
-      background: var(--rule);
-      align-self: stretch;
-      min-height: 240px;
-    }
-
-    .hero-headline {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(34px, 5vw, 54px);
-      font-weight: 700;
-      line-height: 1.15;
-      color: var(--ink);
-      margin-bottom: 20px;
-    }
-
-    .hero-headline em {
-      font-style: italic;
-      color: var(--gold);
-    }
-
-    .hero-lead {
-      font-size: 17px;
-      line-height: 1.75;
-      color: var(--ink-muted);
-    }
-
-    .hero-right {
-      padding-top: 6px;
-    }
-
-    .hero-stat-block {
-      border: 1px solid var(--rule);
-      padding: 22px 24px;
-      margin-bottom: 20px;
-      background: var(--parchment);
-    }
-
-    .hero-stat-row {
+    .hero-cta {
       display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--rule-light);
-      font-size: 14px;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    .hero-stat-row:last-child {
-      border-bottom: none;
-    }
-
-    .hero-stat-label {
-      font-family: 'Lora', serif;
-      font-style: italic;
-      color: var(--ink-light);
-    }
-
-    .hero-stat-value {
-      font-family: 'Playfair Display', serif;
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    .badge {
-      display: inline-block;
-      font-family: 'Lora', serif;
-      font-size: 11px;
-      letter-spacing: 0.12em;
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      padding: 4px 10px;
-      border: 1px solid currentColor;
-      margin-right: 6px;
-      margin-bottom: 6px;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
     }
 
-    .badge-gold {
-      color: var(--gold);
-      border-color: var(--gold);
+    .btn-primary {
+      background: var(--green);
+      color: #0b0c0e;
+      border: 1px solid var(--green);
+      font-weight: 500;
     }
 
-    .badge-ink {
-      color: var(--ink-muted);
-      border-color: var(--rule);
+    .btn-primary:hover {
+      background: #16a34a;
+      border-color: #16a34a;
+      text-decoration: none;
     }
 
-    /* ── Section Divider ── */
-    .divider {
-      border: none;
-      border-top: 1px solid var(--rule);
-      margin: 0;
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border2);
     }
 
-    .divider-bold {
-      border-top: 2px solid var(--ink);
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: var(--muted);
+      text-decoration: none;
     }
 
-    /* ── Feature Cards ── */
-    .features-grid {
+    /* ─── SECTION HEADERS ───────────────────────────── */
+    .section {
+      padding: 64px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .section-number {
+      font-family: var(--font-display);
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      color: var(--faint);
+    }
+
+    .section-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 3px;
+      border: 1px solid;
+    }
+
+    .badge-green  { color: var(--green);  border-color: rgba(34,197,94,0.25);  background: var(--green-dim); }
+    .badge-blue   { color: var(--accent); border-color: rgba(79,142,247,0.3);  background: var(--accent-glow); }
+    .badge-amber  { color: var(--amber);  border-color: rgba(245,158,11,0.3);  background: var(--amber-dim); }
+    .badge-purple { color: var(--purple); border-color: rgba(167,139,250,0.3); background: var(--purple-dim); }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 3.5vw, 34px);
+      letter-spacing: 0.03em;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .section-rule {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ─── FEATURE CARDS ─────────────────────────────── */
+    .card-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: var(--rule-light);
-      border: 1px solid var(--rule-light);
-      margin-top: 40px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
     }
 
-    .feature-card {
-      background: var(--off-white);
-      padding: 32px 28px;
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 26px 28px;
+      transition: border-color 0.2s, background 0.2s;
+      animation: fadeIn 0.6s ease both;
+      display: flex;
+      flex-direction: column;
     }
 
-    .feature-number {
-      font-family: 'Playfair Display', serif;
+    .card:hover {
+      background: var(--surface2);
+      border-color: var(--border2);
+    }
+
+    .card.green  { border-left: 3px solid var(--green); }
+    .card.blue   { border-left: 3px solid var(--accent); }
+    .card.amber  { border-left: 3px solid var(--amber); }
+    .card.purple { border-left: 3px solid var(--purple); }
+
+    .card-number {
+      font-family: var(--font-display);
       font-size: 36px;
-      font-weight: 700;
-      color: var(--rule);
       line-height: 1;
+      color: var(--faint);
       margin-bottom: 14px;
     }
 
-    .feature-card h3 {
-      font-size: 17px;
+    .card h4 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      color: var(--text);
       margin-bottom: 10px;
-      border-bottom: 1px solid var(--rule-light);
-      padding-bottom: 10px;
     }
 
-    .feature-card p {
-      font-size: 14.5px;
+    .card p {
+      font-size: 13.5px;
+      color: var(--muted);
       line-height: 1.65;
-      margin-bottom: 0;
+      flex: 1;
     }
 
-    /* ── Code block ── */
-    .code-section {
-      background: var(--parchment);
-      border-top: 2px solid var(--ink);
-      border-bottom: 2px solid var(--ink);
-      padding: 56px 0;
-    }
-
+    /* ─── CODE SECTION ──────────────────────────────── */
     .code-columns {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 32px;
-      margin-top: 40px;
+      gap: 16px;
+      margin-top: 32px;
     }
 
     .code-block-wrap {
-      border: 1px solid var(--rule);
+      background: #0a0c10;
+      border: 1px solid rgba(34,197,94,0.15);
+      border-left: 2px solid var(--green);
+      border-radius: 6px;
+      overflow: hidden;
+      animation: fadeIn 0.6s ease both;
     }
 
     .code-block-header {
@@ -344,445 +347,357 @@
       align-items: center;
       justify-content: space-between;
       padding: 10px 16px;
-      border-bottom: 1px solid var(--rule);
-      background: var(--off-white);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
     }
 
     .code-lang {
-      font-family: 'Lora', serif;
-      font-size: 11px;
+      font-family: var(--font-mono);
+      font-size: 10px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--ink-light);
+      color: var(--green);
     }
 
     .code-lang-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: var(--gold);
+      background: var(--green);
+      opacity: 0.7;
     }
 
     pre {
-      font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Courier New', monospace;
-      font-size: 12.5px;
-      line-height: 1.7;
-      color: var(--ink);
-      padding: 20px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.75;
+      color: #a8b4c8;
+      padding: 18px 16px;
       overflow-x: auto;
       background: transparent;
     }
 
-    pre .kw  { color: #7B5E2A; font-weight: 600; }
-    pre .fn  { color: #3A5A7B; }
-    pre .str { color: #5C7A3A; }
-    pre .cm  { color: var(--ink-light); font-style: italic; }
-    pre .num { color: #8B4A2A; }
+    pre .kw  { color: #a78bfa; }
+    pre .fn  { color: #4f8ef7; }
+    pre .str { color: #22c55e; }
+    pre .cm  { color: var(--faint); font-style: italic; }
+    pre .num { color: var(--amber); }
 
-    /* ── Primitives table ── */
-    .primitives-section {
-      padding: 64px 0;
-      border-bottom: 1px solid var(--rule);
-    }
-
-    .primitives-header {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      align-items: start;
-      margin-bottom: 40px;
-    }
-
+    /* ─── PRIMITIVES TABLE ──────────────────────────── */
     .primitives-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 14.5px;
+      font-size: 14px;
+      margin-top: 8px;
     }
 
     .primitives-table th {
-      font-family: 'Lora', serif;
+      font-family: var(--font-mono);
       font-size: 10px;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--gold);
+      color: var(--green);
       padding: 10px 16px;
       text-align: left;
-      border-bottom: 2px solid var(--ink);
-      background: var(--off-white);
+      border-bottom: 1px solid var(--border2);
+      background: var(--surface);
     }
 
     .primitives-table td {
       padding: 12px 16px;
-      border-bottom: 1px solid var(--rule-light);
-      color: var(--ink-muted);
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
       vertical-align: top;
     }
 
     .primitives-table td:first-child {
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 12.5px;
-      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text);
       white-space: nowrap;
     }
 
     .primitives-table tr:hover td {
-      background: var(--parchment);
+      background: var(--surface2);
     }
 
-    /* ── Platform matrix ── */
-    .platform-section {
-      padding: 64px 0;
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
     }
 
-    .platform-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-top: 40px;
-    }
-
+    /* ─── PLATFORM CARDS ────────────────────────────── */
     .platform-card {
-      border: 1px solid var(--rule);
-      padding: 28px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px 28px;
       text-align: center;
+      transition: border-color 0.2s, background 0.2s;
+      animation: fadeIn 0.6s ease both;
+    }
+
+    .platform-card:hover {
+      background: var(--surface2);
+      border-color: var(--border2);
     }
 
     .platform-icon {
-      font-size: 32px;
+      font-size: 30px;
       margin-bottom: 14px;
       display: block;
     }
 
-    .platform-card h3 {
-      font-size: 18px;
+    .platform-card h4 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      color: var(--text);
       margin-bottom: 8px;
     }
 
     .platform-card p {
       font-size: 13.5px;
-      line-height: 1.6;
-      margin-bottom: 12px;
-    }
-
-    .platform-pill {
-      display: inline-block;
-      font-family: 'SF Mono', monospace;
-      font-size: 11px;
-      padding: 2px 8px;
-      background: var(--parchment);
-      border: 1px solid var(--rule);
-      color: var(--ink-muted);
-      margin: 2px;
-    }
-
-    /* ── CTA ── */
-    .cta-section {
-      background: var(--ink);
-      color: var(--off-white);
-      padding: 72px 0;
-      text-align: center;
-    }
-
-    .cta-section .section-label {
-      color: var(--gold-light);
-    }
-
-    .cta-section h2 {
-      color: var(--off-white);
-      font-size: clamp(28px, 4vw, 44px);
+      color: var(--muted);
+      line-height: 1.65;
       margin-bottom: 16px;
     }
 
-    .cta-section p {
-      color: #B8A898;
-      max-width: 540px;
-      margin: 0 auto 36px;
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .platform-pill {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      padding: 3px 9px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 3px;
+      color: var(--muted);
+    }
+
+    /* ─── CTA BLOCK ─────────────────────────────────── */
+    .cta-block {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-left: 3px solid var(--green);
+      border-radius: 8px;
+      padding: 40px 36px;
+      text-align: center;
+      animation: fadeIn 0.6s ease both;
+    }
+
+    .cta-block p.eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 14px;
+    }
+
+    .cta-block h2 {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: 0.03em;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .cta-block .desc {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 520px;
+      margin: 0 auto 32px;
     }
 
     .cta-buttons {
       display: flex;
       justify-content: center;
-      gap: 16px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
-    .btn {
-      display: inline-block;
-      font-family: 'Lora', serif;
-      font-size: 13px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 13px 28px;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-    }
-
-    .btn-primary {
-      background: var(--gold);
-      color: var(--ink);
-      border: 1px solid var(--gold);
-    }
-
-    .btn-primary:hover {
-      background: var(--gold-light);
-      border-color: var(--gold-light);
-    }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--off-white);
-      border: 1px solid #5A4E44;
-    }
-
-    .btn-outline:hover {
-      border-color: var(--gold);
-      color: var(--gold-light);
-    }
-
-    /* ── Footer ── */
+    /* ─── FOOTER ─────────────────────────────────────── */
     footer {
-      border-top: 3px double var(--rule);
-      padding: 36px 0 28px;
-      text-align: center;
+      padding: 40px 0;
+      position: relative;
+      z-index: 1;
     }
 
-    .footer-wordmark {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--ink);
-      margin-bottom: 6px;
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
     }
 
-    .footer-sub {
-      font-family: 'Lora', serif;
-      font-size: 12px;
-      font-style: italic;
-      color: var(--ink-light);
-      margin-bottom: 18px;
+    .footer-name {
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
     }
 
     .footer-links {
       display: flex;
-      justify-content: center;
-      gap: 24px;
+      gap: 20px;
       flex-wrap: wrap;
-      margin-bottom: 18px;
     }
 
     .footer-links a {
-      font-family: 'Lora', serif;
-      font-size: 12px;
-      letter-spacing: 0.1em;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--ink-light);
-      text-decoration: none;
+      color: var(--faint);
     }
 
     .footer-links a:hover {
-      color: var(--gold);
+      color: var(--accent);
+      text-decoration: none;
     }
 
-    .footer-copy {
-      font-size: 12px;
-      color: var(--ink-light);
+    .footer-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--faint);
     }
 
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-      .hero-inner {
-        grid-template-columns: 1fr;
-      }
+    /* ─── ANIMATIONS ─────────────────────────────────── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-      .hero-divider {
-        display: none;
-      }
+    /* ─── RESPONSIVE ─────────────────────────────────── */
+    @media (max-width: 640px) {
+      .hero { padding: 48px 0 40px; }
+      .card-grid, .code-columns { grid-template-columns: 1fr; }
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+      .alert-bar { font-size: 9px; gap: 10px; flex-wrap: wrap; justify-content: center; }
+      .section-header { flex-wrap: wrap; }
+      .section-rule { display: none; }
+      .cta-block { padding: 28px 20px; }
+    }
 
-      .features-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .code-columns {
-        grid-template-columns: 1fr;
-      }
-
-      .primitives-header {
-        grid-template-columns: 1fr;
-      }
-
-      .platform-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .nav-strip a {
-        padding: 0 10px;
-        font-size: 11px;
+    /* ─── PRINT ──────────────────────────────────────── */
+    @media print {
+      body { background: #fff; color: #111; }
+      body::before { display: none; }
+      .card, .platform-card, .code-block-wrap, .cta-block, .table-wrap {
+        background: #f9fafb; border-color: #e5e7eb;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Masthead -->
-  <header class="masthead">
-    <p class="masthead-eyebrow">Privyy.io &nbsp;&mdash;&nbsp; Open Cryptographic Infrastructure</p>
-    <h1 class="masthead-logo">Grimlock</h1>
-    <div class="masthead-rule">
-      <span class="masthead-ornament">&#10022;</span>
-    </div>
-    <p class="masthead-tagline">Versioned End-to-End Encryption &nbsp;&bull;&nbsp; Go &middot; TypeScript &middot; Python</p>
-  </header>
+  <div class="container">
 
-  <!-- Nav -->
-  <div class="nav-strip">
-    <nav>
-      <a href="#features">Features</a>
-      <a href="#cryptography">Cryptography</a>
-      <a href="#quickstart">Quick Start</a>
-      <a href="#platforms">Platforms</a>
-      <a href="https://github.com/privyy/grimlock">GitHub</a>
-    </nav>
-  </div>
+    <!-- HERO -->
+    <section class="hero">
+      <p class="hero-eyebrow">Privyy.io &mdash; Open Cryptographic Infrastructure</p>
+      <h1>GRIM<span>LOCK</span></h1>
+      <p class="hero-subtitle">Enterprise-grade encryption engineered for every stack. One protocol. Zero translation layer.</p>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container">
-      <div class="hero-inner">
-        <div class="hero-left">
-          <h2 class="hero-headline">
-            Enterprise-grade encryption,<br />
-            <em>engineered for every stack.</em>
-          </h2>
-          <p class="hero-lead">
-            Grimlock is a production-ready cryptographic library with identical,
-            cross-compatible implementations in Go, TypeScript, and Python.
-            One protocol. Zero translation layer. Encrypt on the server,
-            decrypt in the browser &mdash; or vice versa.
-          </p>
-          <div style="margin-top: 24px;">
-            <span class="badge badge-gold">Production Ready</span>
-            <span class="badge badge-gold">Cross-Compatible</span>
-            <span class="badge badge-ink">Open Source</span>
-            <span class="badge badge-ink">Versioned Protocol</span>
-          </div>
+      <div class="hero-stats">
+        <div class="stat-block">
+          <div class="stat-number">AES-256-GCM</div>
+          <div class="stat-label">Encryption Cipher</div>
         </div>
-
-        <div class="hero-divider"></div>
-
-        <div class="hero-right">
-          <div class="hero-stat-block">
-            <div class="hero-stat-row">
-              <span class="hero-stat-label">Encryption cipher</span>
-              <span class="hero-stat-value">AES-256-GCM</span>
-            </div>
-            <div class="hero-stat-row">
-              <span class="hero-stat-label">Key exchange</span>
-              <span class="hero-stat-value">X25519 ECDH</span>
-            </div>
-            <div class="hero-stat-row">
-              <span class="hero-stat-label">Key derivation</span>
-              <span class="hero-stat-value">Argon2id</span>
-            </div>
-            <div class="hero-stat-row">
-              <span class="hero-stat-label">HKDF</span>
-              <span class="hero-stat-value">SHA-512</span>
-            </div>
-            <div class="hero-stat-row">
-              <span class="hero-stat-label">Cross-compat tests</span>
-              <span class="hero-stat-value">14 / 14 passing</span>
-            </div>
-            <div class="hero-stat-row">
-              <span class="hero-stat-label">Protocol version</span>
-              <span class="hero-stat-value">v1 &nbsp;(v2 planned)</span>
-            </div>
-          </div>
+        <div class="stat-block">
+          <div class="stat-number">X25519</div>
+          <div class="stat-label">Key Exchange</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-number">Argon2id</div>
+          <div class="stat-label">Key Derivation</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-number">HKDF-SHA512</div>
+          <div class="stat-label">HKDF</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-number">14/14</div>
+          <div class="stat-label">Cross-compat Tests</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-number">v1</div>
+          <div class="stat-label">Protocol Version</div>
         </div>
       </div>
-    </div>
-  </section>
 
-  <hr class="divider" />
+      <div class="hero-cta">
+        <a href="https://github.com/privyyio/grimlock" class="btn btn-primary" target="_blank" rel="noopener">View on GitHub</a>
+        <a href="https://github.com/privyyio/grimlock/blob/main/typescript/grimlock/QUICK_START.md" class="btn btn-ghost" target="_blank" rel="noopener">Read the Docs</a>
+      </div>
+    </section>
 
-  <!-- Features -->
-  <section id="features">
-    <div class="container">
-      <p class="section-label">Why Grimlock</p>
-      <h2>Everything your application needs<br />to keep secrets secret.</h2>
-      <p style="max-width: 620px;">
-        From passcode-protected private keys to context-bound end-to-end
-        encrypted messages, Grimlock covers the full lifecycle of key material
-        inside a modern application &mdash; without vendor lock-in or opaque
-        black boxes.
-      </p>
+    <!-- 01 · FEATURES -->
+    <section class="section" id="features">
+      <div class="section-header">
+        <span class="section-number">01</span>
+        <span class="section-badge badge-green">Why Grimlock</span>
+        <h2 class="section-title">Everything You Need to Keep Secrets Secret</h2>
+        <div class="section-rule"></div>
+      </div>
 
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-number">01</div>
-          <h3>End-to-End Encryption</h3>
-          <p>
-            Ephemeral ECDH key pairs guarantee forward secrecy on every message.
-            Context binding via AAD ties each ciphertext to its conversation
-            and prevents cross-context replay.
-          </p>
+      <div class="card-grid">
+        <div class="card green">
+          <div class="card-number">01</div>
+          <h4>End-to-End Encryption</h4>
+          <p>Ephemeral ECDH key pairs guarantee forward secrecy on every message. Context binding via AAD ties each ciphertext to its conversation and prevents cross-context replay.</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-number">02</div>
-          <h3>Cross-Platform Parity</h3>
-          <p>
-            Go and TypeScript implementations are byte-for-byte compatible.
-            Data encrypted by your backend is always decryptable by your
-            frontend &mdash; verified by an automated cross-compatibility suite.
-          </p>
+        <div class="card blue">
+          <div class="card-number">02</div>
+          <h4>Cross-Platform Parity</h4>
+          <p>Go and TypeScript implementations are byte-for-byte compatible. Data encrypted by your backend is always decryptable by your frontend &mdash; verified by an automated cross-compatibility suite.</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-number">03</div>
-          <h3>Versioned Protocol</h3>
-          <p>
-            Encrypted payloads carry version markers. When cryptographic
-            standards evolve, you can migrate gracefully without ever losing
-            access to older data.
-          </p>
+        <div class="card amber">
+          <div class="card-number">03</div>
+          <h4>Versioned Protocol</h4>
+          <p>Encrypted payloads carry version markers. When cryptographic standards evolve, you can migrate gracefully without ever losing access to older data.</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-number">04</div>
-          <h3>Secure Key Management</h3>
-          <p>
-            Private keys are encrypted at rest using AES-256-GCM with
-            user-derived keys. Sensitive material is zeroed from memory
-            immediately after use.
-          </p>
+        <div class="card green">
+          <div class="card-number">04</div>
+          <h4>Secure Key Management</h4>
+          <p>Private keys are encrypted at rest using AES-256-GCM with user-derived keys. Sensitive material is zeroed from memory immediately after use.</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-number">05</div>
-          <h3>Recovery Keys</h3>
-          <p>
-            Generate cryptographically secure recovery keys with optional
-            BIP39 mnemonic encoding, so users can always regain access to
-            their own data.
-          </p>
+        <div class="card blue">
+          <div class="card-number">05</div>
+          <h4>Recovery Keys</h4>
+          <p>Generate cryptographically secure recovery keys with optional BIP39 mnemonic encoding, so users can always regain access to their own data.</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-number">06</div>
-          <h3>Memory Security</h3>
-          <p>
-            Both implementations actively erase key material after use.
-            Go leverages memguard-style techniques; TypeScript uses best-effort
-            zeroing with explicit garbage collection hints.
-          </p>
+        <div class="card amber">
+          <div class="card-number">06</div>
+          <h4>Memory Security</h4>
+          <p>Both implementations actively erase key material after use. Go leverages memguard-style techniques; TypeScript uses best-effort zeroing with explicit garbage collection hints.</p>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Code Section -->
-  <section id="quickstart" class="code-section">
-    <div class="container">
-      <p class="section-label">Quick Start</p>
-      <h2>The same API, across every runtime.</h2>
-      <p style="max-width: 580px;">
-        Install the package for your platform and start encrypting in minutes.
-        The primitives are identical &mdash; only the syntax changes.
+    <!-- 02 · QUICK START -->
+    <section class="section" id="quickstart">
+      <div class="section-header">
+        <span class="section-number">02</span>
+        <span class="section-badge badge-green">Quick Start</span>
+        <h2 class="section-title">The Same API, Across Every Runtime</h2>
+        <div class="section-rule"></div>
+      </div>
+
+      <p style="color: var(--muted); font-size: 14px; max-width: 580px; margin-bottom: 8px;">
+        Install the package for your platform and start encrypting in minutes. The primitives are identical &mdash; only the syntax changes.
       </p>
 
       <div class="code-columns">
@@ -844,98 +759,81 @@ result, err := grimlock.<span class="fn">DecryptMessage</span>(
 )</pre>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Cryptographic Primitives -->
-  <section id="cryptography" class="primitives-section">
-    <div class="container">
-      <div class="primitives-header">
-        <div>
-          <p class="section-label">Cryptographic Primitives</p>
-          <h2>Built on the standards that matter.</h2>
-          <p>
-            Grimlock does not invent new cryptography. It composes proven,
-            well-audited primitives into a cohesive API &mdash; so your
-            security relies on decades of peer review, not on novel code.
-          </p>
-        </div>
-        <div>
-          <p style="font-style: italic; color: var(--ink-light); font-size: 15px; padding-top: 12px;">
-            &#8220; The purpose of cryptography is to keep data confidential
-            and authenticated. Grimlock handles both &mdash; so your
-            application doesn&rsquo;t have to.&#8221;
-          </p>
-          <p style="font-size: 13px; color: var(--rule); margin-top: 8px;">
-            &mdash; Privyy Engineering
-          </p>
-        </div>
+    <!-- 03 · CRYPTOGRAPHIC PRIMITIVES -->
+    <section class="section" id="cryptography">
+      <div class="section-header">
+        <span class="section-number">03</span>
+        <span class="section-badge badge-blue">Cryptography</span>
+        <h2 class="section-title">Built on the Standards That Matter</h2>
+        <div class="section-rule"></div>
       </div>
 
-      <table class="primitives-table">
-        <thead>
-          <tr>
-            <th>Primitive</th>
-            <th>Algorithm</th>
-            <th>Purpose</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>X25519</td>
-            <td>Elliptic Curve Diffie-Hellman</td>
-            <td>Ephemeral shared secret for message encryption; forward secrecy per session</td>
-          </tr>
-          <tr>
-            <td>AES-256-GCM</td>
-            <td>Authenticated Encryption</td>
-            <td>Message and private key encryption with integrity guarantees</td>
-          </tr>
-          <tr>
-            <td>Argon2id</td>
-            <td>Memory-Hard KDF</td>
-            <td>Passcode to encryption key derivation; resistant to GPU brute-force</td>
-          </tr>
-          <tr>
-            <td>HKDF-SHA512</td>
-            <td>Key Derivation Function</td>
-            <td>Recovery key derivation and per-message key expansion</td>
-          </tr>
-          <tr>
-            <td>CSPRNG</td>
-            <td>Platform Secure Random</td>
-            <td>All nonces, salts, and ephemeral key material</td>
-          </tr>
-          <tr>
-            <td>BIP39 (opt.)</td>
-            <td>Mnemonic Encoding</td>
-            <td>Human-readable recovery key representation</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Platforms -->
-  <section id="platforms" class="platform-section">
-    <div class="container">
-      <p class="section-label">Platform Support</p>
-      <h2>Where Grimlock runs.</h2>
-      <p style="max-width: 560px;">
-        Three first-class implementations. One protocol. Every environment
-        in your stack is covered.
+      <p style="color: var(--muted); font-size: 14px; max-width: 620px; margin-bottom: 28px;">
+        Grimlock does not invent new cryptography. It composes proven, well-audited primitives into a cohesive API &mdash; so your security relies on decades of peer review, not on novel code.
       </p>
 
-      <div class="platform-grid">
+      <div class="table-wrap">
+        <table class="primitives-table">
+          <thead>
+            <tr>
+              <th>Primitive</th>
+              <th>Algorithm</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>X25519</td>
+              <td>Elliptic Curve Diffie-Hellman</td>
+              <td>Ephemeral shared secret for message encryption; forward secrecy per session</td>
+            </tr>
+            <tr>
+              <td>AES-256-GCM</td>
+              <td>Authenticated Encryption</td>
+              <td>Message and private key encryption with integrity guarantees</td>
+            </tr>
+            <tr>
+              <td>Argon2id</td>
+              <td>Memory-Hard KDF</td>
+              <td>Passcode to encryption key derivation; resistant to GPU brute-force</td>
+            </tr>
+            <tr>
+              <td>HKDF-SHA512</td>
+              <td>Key Derivation Function</td>
+              <td>Recovery key derivation and per-message key expansion</td>
+            </tr>
+            <tr>
+              <td>CSPRNG</td>
+              <td>Platform Secure Random</td>
+              <td>All nonces, salts, and ephemeral key material</td>
+            </tr>
+            <tr>
+              <td>BIP39 (opt.)</td>
+              <td>Mnemonic Encoding</td>
+              <td>Human-readable recovery key representation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 04 · PLATFORMS -->
+    <section class="section" id="platforms">
+      <div class="section-header">
+        <span class="section-number">04</span>
+        <span class="section-badge badge-amber">Platforms</span>
+        <h2 class="section-title">Where Grimlock Runs</h2>
+        <div class="section-rule"></div>
+      </div>
+
+      <div class="card-grid">
         <div class="platform-card">
           <span class="platform-icon">&#x1F5A5;</span>
-          <h3>Go</h3>
-          <p>
-            Full implementation using the Go standard library and
-            <code>golang.org/x/crypto</code>. Ideal for backend services,
-            microservices, and CLIs.
-          </p>
-          <div>
+          <h4>Go</h4>
+          <p>Full implementation using the Go standard library and <code style="font-family: var(--font-mono); font-size: 11px; color: var(--green);">golang.org/x/crypto</code>. Ideal for backend services, microservices, and CLIs.</p>
+          <div class="pill-row">
             <span class="platform-pill">Go &ge; 1.21</span>
             <span class="platform-pill">x/crypto</span>
             <span class="platform-pill">go get</span>
@@ -944,13 +842,9 @@ result, err := grimlock.<span class="fn">DecryptMessage</span>(
 
         <div class="platform-card">
           <span class="platform-icon">&#x1F310;</span>
-          <h3>TypeScript</h3>
-          <p>
-            Works in both Node.js and the browser via Web Crypto API.
-            Tree-shakeable, fully typed, zero native dependencies required
-            for browser builds.
-          </p>
-          <div>
+          <h4>TypeScript</h4>
+          <p>Works in both Node.js and the browser via Web Crypto API. Tree-shakeable, fully typed, zero native dependencies required for browser builds.</p>
+          <div class="pill-row">
             <span class="platform-pill">Node &ge; 18</span>
             <span class="platform-pill">Browser</span>
             <span class="platform-pill">@noble/curves</span>
@@ -959,51 +853,53 @@ result, err := grimlock.<span class="fn">DecryptMessage</span>(
 
         <div class="platform-card">
           <span class="platform-icon">&#x1F40D;</span>
-          <h3>Python</h3>
-          <p>
-            Native Python implementation for data pipelines, scripts, and
-            server-side tooling that must interoperate with Go or
-            TypeScript services.
-          </p>
-          <div>
+          <h4>Python</h4>
+          <p>Native Python implementation for data pipelines, scripts, and server-side tooling that must interoperate with Go or TypeScript services.</p>
+          <div class="pill-row">
             <span class="platform-pill">Python &ge; 3.10</span>
             <span class="platform-pill">pip install</span>
             <span class="platform-pill">Poetry</span>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- CTA -->
-  <section class="cta-section">
-    <div class="container">
-      <p class="section-label">Get Started</p>
-      <h2>Start encrypting in minutes.</h2>
-      <p>
-        Grimlock is open source and built for real applications.
-        Read the documentation, explore the source, or drop into
-        the repository and contribute.
-      </p>
-      <div class="cta-buttons">
-        <a href="https://github.com/privyy/grimlock" class="btn btn-primary">View on GitHub</a>
-        <a href="https://github.com/privyy/grimlock/blob/main/typescript/grimlock/QUICK_START.md" class="btn btn-outline">Read the Docs</a>
+    <!-- 05 · GET STARTED -->
+    <section class="section" style="border-bottom: none;">
+      <div class="section-header">
+        <span class="section-number">05</span>
+        <span class="section-badge badge-green">Get Started</span>
+        <h2 class="section-title">Start Encrypting in Minutes</h2>
+        <div class="section-rule"></div>
       </div>
-    </div>
-  </section>
 
-  <!-- Footer -->
+      <div class="cta-block">
+        <p class="eyebrow">Open Source &middot; Production Ready</p>
+        <h2>Grimlock is open source and built for real applications.</h2>
+        <p class="desc">Read the documentation, explore the source, or drop into the repository and contribute. The full stack awaits.</p>
+        <div class="cta-buttons">
+          <a href="https://github.com/privyy/grimlock" class="btn btn-primary" target="_blank" rel="noopener">View on GitHub</a>
+          <a href="https://github.com/privyy/grimlock/blob/main/typescript/grimlock/QUICK_START.md" class="btn btn-ghost" target="_blank" rel="noopener">Read the Docs</a>
+          <a href="https://privyy.io" class="btn btn-ghost" target="_blank" rel="noopener">Privyy.io</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- FOOTER -->
   <footer>
     <div class="container">
-      <div class="footer-wordmark">Grimlock</div>
-      <p class="footer-sub">A Privyy.io open-source project</p>
-      <nav class="footer-links">
-        <a href="https://github.com/privyy/grimlock">GitHub</a>
-        <a href="https://github.com/privyy/grimlock/blob/main/README.md">Documentation</a>
-        <a href="https://privyy.io">Privyy.io</a>
-        <a href="https://github.com/privyy/grimlock/issues">Issues</a>
-      </nav>
-      <p class="footer-copy">&copy; 2025 Privyy.io &mdash; Built with care for security.</p>
+      <div class="footer-inner">
+        <span class="footer-name">GRIMLOCK</span>
+        <nav class="footer-links">
+          <a href="https://github.com/privyy/grimlock" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/privyy/grimlock/blob/main/README.md" target="_blank" rel="noopener">Documentation</a>
+          <a href="https://privyy.io" target="_blank" rel="noopener">Privyy.io</a>
+          <a href="https://github.com/privyy/grimlock/issues" target="_blank" rel="noopener">Issues</a>
+        </nav>
+        <span class="footer-meta">A Privyy.io open-source project &middot; 2025</span>
+      </div>
     </div>
   </footer>
 
