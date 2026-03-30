@@ -34,6 +34,9 @@ jobs:
       - name: Install Poetry
         run: pipx install poetry
 
+      - name: Configure Poetry to use setup-python interpreter
+        run: poetry env use $(which python3)
+
       - name: Extract version from tag (if tag push)
         if: startsWith(github.ref, 'refs/tags/python/')
         id: tag_version
