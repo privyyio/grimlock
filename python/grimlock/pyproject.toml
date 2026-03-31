@@ -5,14 +5,14 @@ version = "1.0.0"
 description = "Versioned cryptographic operations module for privyy.io"
 authors = ["Privyy <info@privyy.io>"]
 readme = "README.md"
-license = "ISC"
+license = "PolyForm-Noncommercial-1.0.0"
 repository = "https://github.com/privyy-io/grimlock"
 homepage = "https://github.com/privyy-io/grimlock"
 keywords = ["cryptography", "encryption", "ecdh", "aes-gcm", "key-derivation", "privacy"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: ISC License",
+    "License :: Other/Proprietary License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
     "Topic :: Security :: Cryptography",
