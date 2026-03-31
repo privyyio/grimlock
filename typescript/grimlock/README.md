@@ -36,7 +36,7 @@ npm install bip39
 ### Default Export (Latest Version)
 
 ```typescript
-import grimlock from '@privyy-io/grimlock';
+import grimlock from '@privyyio/grimlock';
 
 // Generate key pair
 const keyPair = await grimlock.generateKeyPair();
@@ -61,7 +61,7 @@ const encrypted = await grimlock.encryptPrivateKey(
 ### Explicit Version Selection
 
 ```typescript
-import { v1, v2 } from '@privyy-io/grimlock';
+import { v1, v2 } from '@privyyio/grimlock';
 
 // Use v1 explicitly
 const keyPair = await v1.generateKeyPair();
@@ -73,7 +73,7 @@ const keyPair = await v1.generateKeyPair();
 ### Version Manager
 
 ```typescript
-import { getVersionManager } from '@privyy-io/grimlock';
+import { getVersionManager } from '@privyyio/grimlock';
 
 const manager = getVersionManager();
 const latest = manager.getLatestVersion(); // "v1"
@@ -83,7 +83,7 @@ const v1Metadata = manager.getVersion('v1');
 ### Version Detection
 
 ```typescript
-import { detectVersion, getVersionForData, requiresMigration } from '@privyy-io/grimlock';
+import { detectVersion, getVersionForData, requiresMigration } from '@privyyio/grimlock';
 
 const encrypted = await fetchEncryptedMessage(messageId);
 const version = detectVersion(encrypted) || 'v1';

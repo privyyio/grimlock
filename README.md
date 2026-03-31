@@ -62,7 +62,7 @@ grimlock/
 **Location**: `go/grimlock/`
 
 ```go
-import "github.com/privyy/grimlock"
+import "github.com/privyyio/grimlock"
 
 // Generate a new key pair
 keyPair, err := grimlock.GenerateKeyPair()
@@ -121,7 +121,7 @@ const payload = await grimlock.decryptMessage(encrypted, privateKey, context);
 
 ```bash
 cd go/grimlock
-go get github.com/privyy/grimlock
+go get github.com/privyyio/grimlock
 ```
 
 #### TypeScript
