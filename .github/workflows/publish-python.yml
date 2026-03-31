@@ -34,9 +34,8 @@ jobs:
       - name: Install Poetry
         run: pipx install poetry
 
-      - name: Configure Poetry to use setup-python interpreter
-        working-directory: ./python/grimlock
-        run: poetry env use $(which python3)
+      - name: Configure Poetry
+        run: poetry config virtualenvs.create false
 
       - name: Extract version from tag (if tag push)
         if: startsWith(github.ref, 'refs/tags/python/')
