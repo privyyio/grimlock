@@ -6,8 +6,8 @@ description = "Versioned cryptographic operations module for privyy.io"
 authors = ["Privyy <info@privyy.io>"]
 readme = "README.md"
 license = "ISC"
-repository = "https://github.com/privyy-io/grimlock"
-homepage = "https://github.com/privyy-io/grimlock"
+repository = "https://github.com/privyyio/grimlock"
+homepage = "https://github.com/privyyio/grimlock"
 keywords = ["cryptography", "encryption", "ecdh", "aes-gcm", "key-derivation", "privacy"]
 classifiers = [
     "Development Status :: 4 - Beta",
