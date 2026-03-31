@@ -57,19 +57,19 @@ Create or update `.npmrc` in your frontend repository root:
 ### Step 2: Install the Package
 
 ```bash
-npm install @privyy/grimlock
+npm install @privyyio/grimlock
 ```
 
 Or with yarn:
 
 ```bash
-yarn add @privyy/grimlock
+yarn add @privyyio/grimlock
 ```
 
 Or with pnpm:
 
 ```bash
-pnpm add @privyy/grimlock
+pnpm add @privyyio/grimlock
 ```
 
 ### Step 3: Authenticate with GitHub Packages
@@ -107,10 +107,10 @@ npm login --scope=@privyy --registry=https://npm.pkg.github.com
 
 ```typescript
 // Import the default export (latest version)
-import grimlock from "@privyy/grimlock";
+import grimlock from "@privyyio/grimlock";
 
 // Or import specific versions
-import { v1, getVersionManager } from "@privyy/grimlock";
+import { v1, getVersionManager } from "@privyyio/grimlock";
 
 // Example: Generate a key pair
 const keyPair = await grimlock.generateKeyPair();
@@ -185,7 +185,7 @@ variables:
   GITHUB_TOKEN: $CI_GITHUB_TOKEN # Set in GitLab CI/CD variables
 
 before_script:
-  - echo "@privyy:registry=https://npm.pkg.github.com" >> .npmrc
+  - echo "@privyyio:registry=https://npm.pkg.github.com" >> .npmrc
   - echo "//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN" >> .npmrc
 ```
 
@@ -194,13 +194,13 @@ before_script:
 ### Checking Available Versions
 
 ```bash
-npm view @privyy/grimlock versions --registry=https://npm.pkg.github.com
+npm view @privyyio/grimlock versions --registry=https://npm.pkg.github.com
 ```
 
 ### Installing Specific Versions
 
 ```bash
-npm install @privyy/grimlock@1.0.0
+npm install @privyyio/grimlock@1.0.0
 ```
 
 ### Updating the Package
@@ -232,9 +232,9 @@ npm outdated @privyy/grimlock
 
 ### Error: 404 Not Found
 
-- Verify the package name is `@privyy/grimlock`
+- Verify the package name is `@privyyio/grimlock`
 - Check that the package has been published
-- Ensure you have access to the `privyy` organization
+- Ensure you have access to the `privyyio` organization
 
 ### Error: Cannot find module
 

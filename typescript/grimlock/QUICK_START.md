@@ -35,13 +35,13 @@ export GITHUB_TOKEN=ghp_your_token_here
 ### 4. Install the Package
 
 ```bash
-npm install @privyy/grimlock
+npm install @privyyio/grimlock
 ```
 
 ### 5. Use It!
 
 ```typescript
-import grimlock from "@privyy/grimlock";
+import grimlock from "@privyyio/grimlock";
 
 // Generate keys
 const keyPair = await grimlock.generateKeyPair();
@@ -79,13 +79,13 @@ git push origin typescript/v1.0.1
 ## 🔄 Updating in Frontend
 
 ```bash
-npm update @privyy/grimlock
+npm update @privyyio/grimlock
 ```
 
 Or install specific version:
 
 ```bash
-npm install @privyy/grimlock@1.0.1
+npm install @privyyio/grimlock@1.0.1
 ```
 
 ## 📚 Full Documentation

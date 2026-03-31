@@ -1,4 +1,4 @@
-module github.com/privyy-io/grimlock/go/grimlock
+module github.com/privyyio/grimlock/go/grimlock
 
 go 1.24.0
 
