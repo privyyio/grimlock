@@ -427,7 +427,9 @@ We welcome contributions! Please see [AGENTS.md](AGENTS.md) for guidelines on wo
 
 ## 📄 License
 
-[Add your license here]
+This software is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+**Free for personal and non-commercial use.** Commercial use requires a separate license from Privyy. Contact [info@privyy.io](mailto:info@privyy.io) for commercial licensing.
 
 ## 🔗 Related Projects
 
