@@ -184,7 +184,7 @@ fi
 # ============================================================================
 print_section "Phase 3: Verify Cross-Compatibility"
 
-TOTAL_TESTS=$((TOTAL_TESTS + 6))
+TOTAL_TESTS=$((TOTAL_TESTS + 9))
 
 # Verify Go-generated data with TypeScript
 run_test "Verify Go data with TypeScript" "cd ts-verifier && npm run verify && cd .."
@@ -194,25 +194,30 @@ run_test "Verify TypeScript data with Go" "cd go-verifier && go run main.go && c
 
 # Verify Go-generated data with Python
 if command -v python3 &> /dev/null && [ -f "python-verifier/verifier.py" ]; then
-  run_test "Verify Go data with Python" "cd ../python/grimlock && poetry run python ../../cross-compatibility-testing/python-verifier/verifier.py && cd ../../cross-compatibility-testing"
+  run_test "Verify Go data with Python" "cd ../python/grimlock && poetry run python ../../cross-compatibility-testing/python-verifier/verifier.py go && cd ../../cross-compatibility-testing"
 else
   echo -e "${YELLOW}⚠ Skipping Python verifier (python3 not found or verifier.py missing)${NC}"
 fi
 
 # Verify TypeScript-generated data with Python
 if command -v python3 &> /dev/null && [ -f "python-verifier/verifier.py" ]; then
-  # Note: This would require updating verifier.py to handle TypeScript data
-  echo -e "${YELLOW}⚠ TypeScript→Python verification (to be implemented)${NC}"
+  run_test "Verify TypeScript data with Python" "cd ../python/grimlock && poetry run python ../../cross-compatibility-testing/python-verifier/verifier.py ts && cd ../../cross-compatibility-testing"
+else
+  echo -e "${YELLOW}⚠ Skipping TypeScript→Python verification (python3 not found)${NC}"
 fi
 
 # Verify Python-generated data with Go
 if [ -f "test-data/python-generated.json" ]; then
-  echo -e "${YELLOW}⚠ Python→Go verification (to be implemented in go-verifier)${NC}"
+  run_test "Verify Python data with Go" "cd go-verifier && go run main.go ../test-data/python-generated.json && cd .."
+else
+  echo -e "${YELLOW}⚠ Skipping Python→Go verification (python-generated.json not found)${NC}"
 fi
 
 # Verify Python-generated data with TypeScript
 if [ -f "test-data/python-generated.json" ]; then
-  echo -e "${YELLOW}⚠ Python→TypeScript verification (to be implemented in ts-verifier)${NC}"
+  run_test "Verify Python data with TypeScript" "cd ts-verifier && npm run verify -- python && cd .."
+else
+  echo -e "${YELLOW}⚠ Skipping Python→TypeScript verification (python-generated.json not found)${NC}"
 fi
 
 # ============================================================================

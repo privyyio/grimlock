@@ -27,25 +27,36 @@ def bytes_equal(a: bytes, b: bytes) -> bool:
     return a == b
 
 
-def verify_go_data():
-    """Verify Go-generated test data."""
-    test_data_path = Path(__file__).parent.parent / "test-data" / "go-generated.json"
+
+
+def verify_source_data(source: str) -> bool:
+    """Verify test data from a given source ('go', 'ts', 'python').
+
+    Performs the same checks as verify_go_data but against any generator's output.
+    """
+    file_map = {
+        "go": "go-generated.json",
+        "ts": "ts-generated.json",
+        "python": "python-generated.json",
+    }
+    filename = file_map.get(source, source)
+    test_data_path = Path(__file__).parent.parent / "test-data" / filename
     if not test_data_path.exists():
-        print("⚠️  Go test data not found, skipping verification")
+        print(f"⚠️  {filename} not found, skipping verification")
         return False
 
-    print("Verifying Go-generated test data...")
+    print(f"Verifying {filename} with Python...")
     with open(test_data_path) as f:
         test_data = json.load(f)
 
     g = grimlock.v1
     all_passed = True
 
+    from grimlock.types.common import Argon2Params, KdfParams
+
     # 1. Verify passcode derivation
     print("  ✓ Verifying passcode derivation...")
     passcode_data = test_data["passcodeDerivation"]
-    from grimlock.types.common import Argon2Params, KdfParams
-
     params = KdfParams(
         salt=from_base64(passcode_data["salt"]),
         argon2_params=Argon2Params(
@@ -55,8 +66,7 @@ def verify_go_data():
         ),
     )
     derived_key = g.derive_passcode_key(passcode_data["passcode"], params)
-    expected_key = from_base64(passcode_data["derivedKey"])
-    if not bytes_equal(derived_key, expected_key):
+    if not bytes_equal(derived_key, from_base64(passcode_data["derivedKey"])):
         print("    ❌ Passcode derivation failed")
         all_passed = False
     else:
@@ -65,10 +75,8 @@ def verify_go_data():
     # 2. Verify recovery key derivation
     print("  ✓ Verifying recovery key derivation...")
     recovery_data = test_data["recoveryKeyDerivation"]
-    recovery_key_bytes = from_base64(recovery_data["recoveryKeyBytes"])
-    derived_key = g.derive_recovery_key(recovery_key_bytes)
-    expected_key = from_base64(recovery_data["derivedKey"])
-    if not bytes_equal(derived_key, expected_key):
+    derived_key = g.derive_recovery_key(from_base64(recovery_data["recoveryKeyBytes"]))
+    if not bytes_equal(derived_key, from_base64(recovery_data["derivedKey"])):
         print("    ❌ Recovery key derivation failed")
         all_passed = False
     else:
@@ -76,17 +84,18 @@ def verify_go_data():
 
     # 3. Verify private key decryption
     print("  ✓ Verifying private key decryption...")
-    private_key_data = test_data["privateKeyEncryption"]
+    pk_data = test_data["privateKeyEncryption"]
     encrypted = EncryptedPrivateKey(
-        iv=from_base64(private_key_data["encrypted"]["iv"]),
-        tag=from_base64(private_key_data["encrypted"]["tag"]),
-        ciphertext=from_base64(private_key_data["encrypted"]["ciphertext"]),
+        iv=from_base64(pk_data["encrypted"]["iv"]),
+        tag=from_base64(pk_data["encrypted"]["tag"]),
+        ciphertext=from_base64(pk_data["encrypted"]["ciphertext"]),
     )
-    encryption_key = from_base64(private_key_data["encryptionKey"])
-    aad = from_base64(private_key_data["aad"])
-    expected_private_key = from_base64(private_key_data["privateKey"])
-    decrypted = g.decrypt_private_key(encrypted, encryption_key, aad)
-    if not bytes_equal(decrypted, expected_private_key):
+    decrypted = g.decrypt_private_key(
+        encrypted,
+        from_base64(pk_data["encryptionKey"]),
+        from_base64(pk_data["aad"]),
+    )
+    if not bytes_equal(decrypted, from_base64(pk_data["privateKey"])):
         print("    ❌ Private key decryption failed")
         all_passed = False
     else:
@@ -95,18 +104,19 @@ def verify_go_data():
     # 4. Verify message decryption
     print("  ✓ Verifying message decryption...")
     msg_data = test_data["messageEncryption"]
-    encrypted = EncryptedMessage(
+    encrypted_msg = EncryptedMessage(
         ephemeral_public_key=from_base64(msg_data["encrypted"]["ephemeralPublicKey"]),
         iv=from_base64(msg_data["encrypted"]["iv"]),
         tag=from_base64(msg_data["encrypted"]["tag"]),
         ciphertext=from_base64(msg_data["encrypted"]["ciphertext"]),
     )
-    user_private_key = from_base64(msg_data["userKeyPair"]["privateKey"])
     context = MessageContext(
         conversation_id=msg_data["context"]["conversationId"],
         message_id=msg_data["context"]["messageId"],
     )
-    payload = g.decrypt_message(encrypted, user_private_key, context)
+    payload = g.decrypt_message(
+        encrypted_msg, from_base64(msg_data["userKeyPair"]["privateKey"]), context
+    )
     if payload.user_message != msg_data["payload"]["userMessage"]:
         print("    ❌ Message decryption failed")
         all_passed = False
@@ -116,11 +126,11 @@ def verify_go_data():
     # 5. Verify ECDH
     print("  ✓ Verifying ECDH...")
     ecdh_data = test_data["ecdhTest"]
-    alice_private_key = from_base64(ecdh_data["alicePrivateKey"])
-    bob_public_key = from_base64(ecdh_data["bobPublicKey"])
-    shared_secret = g.compute_shared_secret(alice_private_key, bob_public_key)
-    expected_shared_secret = from_base64(ecdh_data["sharedSecret"])
-    if not bytes_equal(shared_secret, expected_shared_secret):
+    shared_secret = g.compute_shared_secret(
+        from_base64(ecdh_data["alicePrivateKey"]),
+        from_base64(ecdh_data["bobPublicKey"]),
+    )
+    if not bytes_equal(shared_secret, from_base64(ecdh_data["sharedSecret"])):
         print("    ❌ ECDH failed")
         all_passed = False
     else:
@@ -129,37 +139,20 @@ def verify_go_data():
     return all_passed
 
 
-def verify_typescript_data():
-    """Verify TypeScript-generated test data."""
-    test_data_path = (
-        Path(__file__).parent.parent / "test-data" / "ts-generated.json"
-    )
-    if not test_data_path.exists():
-        print("⚠️  TypeScript test data not found, skipping verification")
-        return False
-
-    print("Verifying TypeScript-generated test data...")
-    with open(test_data_path) as f:
-        test_data = json.load(f)
-
-    g = grimlock.v1
-    all_passed = True
-
-    # Similar verification steps as Go data
-    # (Implementation would be similar to verify_go_data)
-
-    return all_passed
-
-
 def main():
-    """Main verification function."""
+    """Main verification function.
+
+    Accepts an optional positional argument specifying which source to verify:
+      go (default), ts, python
+    If omitted, verifies both go and ts sources.
+    """
     print("Python Grimlock Cross-Compatibility Verifier\n")
 
-    go_passed = verify_go_data()
-    ts_passed = verify_typescript_data()
+    sources = sys.argv[1:] if len(sys.argv) > 1 else ["go", "ts"]
+    results = [verify_source_data(src) for src in sources]
 
     print("\n" + "=" * 50)
-    if go_passed and ts_passed:
+    if all(results):
         print("✅ All cross-compatibility tests passed!")
         return 0
     else:
