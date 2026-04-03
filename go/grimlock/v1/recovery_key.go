@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/privyy-io/grimlock/go/grimlock/types"
+	"github.com/privyyio/grimlock/go/grimlock/types"
 )
 
 // GenerateRecoveryKey generates a new cryptographically secure recovery key

@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"github.com/privyy-io/grimlock/go/grimlock/types"
-	"github.com/privyy-io/grimlock/go/grimlock/utils"
+	"github.com/privyyio/grimlock/go/grimlock/types"
+	"github.com/privyyio/grimlock/go/grimlock/utils"
 )
 
 // API represents the v1 API interface

@@ -1,6 +1,6 @@
 package v1
 
-import "github.com/privyy-io/grimlock/go/grimlock/types"
+import "github.com/privyyio/grimlock/go/grimlock/types"
 
 // CryptoConstants contains all cryptographic constants for v1
 type CryptoConstants struct {
